@@ -14,10 +14,17 @@ function getAI() {
 // Simple session-based cache to prevent redundant API calls and speed up navigation
 const cache: Record<string, { data: DashboardData; timestamp: number }> = {};
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes cache (standard session)
-const PERSISTENT_CACHE_KEY = 'ai_shot_report_cache';
+const PERSISTENT_CACHE_KEY = 'first_cup_report_cache';
+const LEGACY_CACHE_KEY = 'ai_shot_report_cache';
 
 function getPersistentCache(): Record<string, { data: DashboardData; timestamp: number }> {
   try {
+    // Migrate from legacy key if present
+    const legacy = localStorage.getItem(LEGACY_CACHE_KEY);
+    if (legacy) {
+      localStorage.setItem(PERSISTENT_CACHE_KEY, legacy);
+      localStorage.removeItem(LEGACY_CACHE_KEY);
+    }
     const stored = localStorage.getItem(PERSISTENT_CACHE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch {
@@ -337,7 +344,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         title: isZh ? "AI 辅助科研效率提升 40%" : "AI-Assisted Research Efficiency Up 40%",
         description: isZh ? "最新研究表明，使用 AI 智能体进行文献综述和实验设计的学生，其产出质量显著提高。" : "Latest studies show students using AI agents for literature review and experimental design see significant quality gains.",
         takeaway: isZh ? "掌握提示词工程将成为未来学术研究的核心竞争力。" : "Mastering prompt engineering will become a core competency for future academic research.",
-        url: "https://arxiv.org/"
+        url: "https://arxiv.org/search/?searchtype=all&query=AI+research+efficiency"
       },
       metrics: [
         { label: "AI Tools Used", value: "85%", change: "+5%", isPositive: true },

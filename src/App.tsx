@@ -31,7 +31,7 @@ import {
   Rocket
 } from 'lucide-react';
 import { Persona, DashboardData, Language, Discipline } from './types';
-import { fetchDashboardData } from './services/geminiService';
+import { fetchDashboardData, prefetchNextData } from './services/geminiService';
 
 const translations = {
 // ... existing translations ...
@@ -166,32 +166,38 @@ const translations = {
   }
 };
 
-function CampusVoice({ t, language }: { t: any, language: Language }) {
+function CampusVoice({ t }: { t: any, language: Language }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
-  const socketRef = useRef<WebSocket | null>(null);
+  const [sending, setSending] = useState(false);
+  const lastTimestampRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Determine WebSocket URL based on current origin
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}`;
-    
-    const socket = new WebSocket(wsUrl);
-    socketRef.current = socket;
-
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "init") {
-        setMessages(message.data);
-      } else if (message.type === "new_message") {
-        setMessages((prev) => [...prev, message.data]);
+  const fetchMessages = async (initial = false) => {
+    try {
+      const url = initial
+        ? '/api/messages'
+        : `/api/messages${lastTimestampRef.current ? `?since=${encodeURIComponent(lastTimestampRef.current)}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data: any[] = await res.json();
+      if (data.length > 0) {
+        lastTimestampRef.current = data[data.length - 1].timestamp;
+        if (initial) {
+          setMessages(data);
+        } else {
+          setMessages((prev) => [...prev, ...data]);
+        }
       }
-    };
+    } catch {
+      // silent fail — network blip
+    }
+  };
 
-    return () => {
-      socket.close();
-    };
+  useEffect(() => {
+    fetchMessages(true);
+    const timer = setInterval(() => fetchMessages(false), 4000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -200,16 +206,27 @@ function CampusVoice({ t, language }: { t: any, language: Language }) {
     }
   }, [messages]);
 
-  const handleSend = () => {
-    if (!inputText.trim() || !socketRef.current) return;
-    
-    socketRef.current.send(JSON.stringify({
-      type: "post",
-      text: inputText.trim(),
-      user: t.anonymous
-    }));
-    
+  const handleSend = async () => {
+    if (!inputText.trim() || sending) return;
+    setSending(true);
+    const text = inputText.trim();
     setInputText("");
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, user: t.anonymous }),
+      });
+      if (res.ok) {
+        const newMsg = await res.json();
+        lastTimestampRef.current = newMsg.timestamp;
+        setMessages((prev) => [...prev, newMsg]);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -254,7 +271,7 @@ function CampusVoice({ t, language }: { t: any, language: Language }) {
           />
           <button 
             onClick={handleSend}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || sending}
             className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send size={18} />
@@ -273,8 +290,8 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-xl font-bold flex items-center gap-2">
-          <Coins size={20} className="text-amber-500" />
+        <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+          <Coins size={20} className="text-amber-600" />
           {t.sideHustleTitle}
         </h3>
         <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -326,8 +343,8 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-xl font-bold flex items-center gap-2">
-          <Globe size={20} className="text-blue-500" />
+        <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+          <Globe size={20} className="text-amber-700" />
           {t.peerStoryTitle}
         </h3>
         <span className="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -385,8 +402,8 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-xl font-bold flex items-center gap-2">
-          <Rocket size={20} className="text-rose-500" />
+        <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+          <Rocket size={20} className="text-amber-700" />
           {t.soloEntrepreneurTitle}
         </h3>
         <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -484,6 +501,8 @@ export default function App() {
       if (result.isDemo) {
         console.warn("Displaying demo data due to API quota limits.");
       }
+      // Prefetch the opposite persona in background for instant tab switching
+      setTimeout(() => prefetchNextData(persona, language), 2000);
     } catch (err: any) {
       console.error(err);
       // Only show error card if we have NO data at all (not even demo/cached)
@@ -510,10 +529,10 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-bottom border-black/5 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
-              AI
+            <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center text-white font-bold text-base">
+              ☕
             </div>
-            <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
+            <h1 className="text-lg font-semibold tracking-tight">第一杯</h1>
             {data?.isDemo && (
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 ml-2 animate-pulse">
                 <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
@@ -550,6 +569,12 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex flex-col items-end leading-tight">
+              <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">出炉时间</span>
+              <span className="text-[11px] font-bold text-gray-600 tabular-nums">
+                {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '-')}
+              </span>
+            </div>
             <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
               <Search size={20} />
             </button>
@@ -986,8 +1011,8 @@ export default function App() {
             {/* News Feed */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-2">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <Globe size={20} className="text-emerald-500" />
+                <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+                  <Globe size={20} className="text-amber-700" />
                   {t.intelligenceStream}
                 </h3>
                 <button className="text-sm font-medium text-gray-500 hover:text-black transition-colors">{t.viewAll}</button>
@@ -1210,8 +1235,8 @@ export default function App() {
 
             {/* Topic Heatmap */}
             <section className="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
-              <h3 className="font-bold flex items-center gap-2 mb-4">
-                <TrendingUp size={18} className="text-orange-500" />
+              <h3 className="font-bold flex items-center gap-2 mb-4 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+                <TrendingUp size={18} className="text-amber-700" />
                 {t.topicRadar}
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -1306,7 +1331,7 @@ export default function App() {
           </div>
         </div>
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© 2026 AI Shot Intelligence. {t.rights}</p>
+          <p>© 2026 第一杯 Intelligence. {t.rights}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-black">Twitter</a>
             <a href="#" className="hover:text-black">LinkedIn</a>
