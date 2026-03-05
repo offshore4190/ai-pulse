@@ -39,14 +39,14 @@ const translations = {
   en: {
     investor: 'Investor',
     student: 'Student',
-    todaySignal: "Today's Signal",
+    todaySignal: "Heavy Hitter",
     readAnalysis: 'Read Full Analysis',
-    intelligenceStream: 'Intelligence Stream',
+    intelligenceStream: 'Research Dark Brew',
     viewAll: 'View All',
     socialSignals: 'Social Signals',
     keyDeals: 'Key Deals',
-    learningPath: 'Learning Path',
-    topicRadar: 'Topic Radar',
+    learningPath: 'Growth Recipe',
+    topicRadar: 'Hot Topic Latte Art',
     upcoming: 'Upcoming',
     interpretation: 'Interpretation',
     signal: 'Signal',
@@ -62,8 +62,8 @@ const translations = {
     minRead: 'min read',
     globalEvent: 'Global Event',
     virtual: 'Virtual',
-    aiPlusMajor: 'AI + Major',
-    agentDirectory: 'AI Agent Directory',
+    aiPlusMajor: 'Major Special Blend',
+    agentDirectory: 'Self-Service Bar',
     agentCategory: 'Category',
     agentFeatures: 'Key Features',
     visitSite: 'Visit Website',
@@ -72,7 +72,7 @@ const translations = {
     engineering: 'Engineering',
     business: 'Business',
     futureTrend: 'Future Trend',
-    errorTitle: 'Intelligence Feed Interrupted',
+    errorTitle: 'Research Dark Brew Interrupted',
     errorDesc: 'We have exceeded the current API quota. Please wait a moment or switch to a paid API key for uninterrupted service.',
     retry: 'Retry Connection',
     switchKey: 'Switch to Paid API Key',
@@ -82,35 +82,35 @@ const translations = {
     majorNews: 'Major-Specific News',
     forums: 'Community Forums',
     backToDashboard: 'Back to Dashboard',
-    deepDiveTitle: 'AI + Major Deep Dive',
+    deepDiveTitle: 'Major Special Blend Deep Dive',
     viewPost: 'View Post',
-    campusVoice: 'Campus Voice',
+    campusVoice: 'No Pretending - I Use AI Too',
     campusVoiceDesc: 'Share your AI insights with fellow students.',
     sharePlaceholder: 'What AI breakthrough did you discover today?',
     post: 'Post',
     anonymous: 'Anonymous',
     complianceNotice: 'Please stay respectful. Content is moderated for community safety.',
-    sideHustleTitle: 'Side Hustle Inspiration',
+    sideHustleTitle: 'Side Hustle Iced Brew',
     lowCostStart: 'Low Cost Start',
-    peerStoryTitle: 'What Global Peers are Doing',
+    peerStoryTitle: 'Global Coffee Fellows',
     weeklyStory: 'Weekly Story',
     whatYouCanLearn: 'What You Can Learn',
     income: 'Income',
     funding: 'Funding',
-    soloEntrepreneurTitle: 'Solo Entrepreneur / Indie Maker',
+    soloEntrepreneurTitle: 'Independent Creator Cafe',
     indieMaker: 'Indie Maker'
   },
   zh: {
     investor: '投资人',
     student: '大学生',
-    todaySignal: '今日信号',
+    todaySignal: '重磅热咖',
     readAnalysis: '阅读深度分析',
-    intelligenceStream: '情报流',
+    intelligenceStream: '投研黑咖',
     viewAll: '查看全部',
     socialSignals: '社交信号',
     keyDeals: '核心交易',
-    learningPath: '学习路径',
-    topicRadar: '话题雷达',
+    learningPath: '成长配方',
+    topicRadar: '热点拉花',
     upcoming: '即将到来',
     interpretation: '深度解读',
     signal: '投资信号',
@@ -126,8 +126,8 @@ const translations = {
     minRead: '分钟阅读',
     globalEvent: '全球事件',
     virtual: '线上',
-    aiPlusMajor: 'AI + 专业',
-    agentDirectory: 'AI Agent 导航',
+    aiPlusMajor: '专业特调',
+    agentDirectory: '自助吧台',
     agentCategory: '分类',
     agentFeatures: '核心特点',
     visitSite: '访问网站',
@@ -136,7 +136,7 @@ const translations = {
     engineering: '工科',
     business: '商科',
     futureTrend: '未来趋势',
-    errorTitle: '情报流暂时中断',
+    errorTitle: '投研黑咖暂时中断',
     errorDesc: '当前 API 配额已耗尽。请稍候重试，或切换至您的付费 API 密钥以获得不间断服务。',
     retry: '重试连接',
     switchKey: '切换至付费 API 密钥',
@@ -146,22 +146,22 @@ const translations = {
     majorNews: '专业细分时讯',
     forums: '可交流的论坛',
     backToDashboard: '返回仪表盘',
-    deepDiveTitle: 'AI + 专业 深度探索',
+    deepDiveTitle: '专业特调 深度探索',
     viewPost: '查看原文',
-    campusVoice: '校园之声',
+    campusVoice: '不装了，我也在用AI',
     campusVoiceDesc: '与同学分享你的 AI 见解。',
     sharePlaceholder: '今天你发现了什么 AI 突破？',
     post: '发布',
     anonymous: '匿名用户',
     complianceNotice: '请保持友善。内容将经过审核以确保社区安全。',
-    sideHustleTitle: '本周副业灵感',
+    sideHustleTitle: '本周副业冰萃',
     lowCostStart: '低成本启动',
-    peerStoryTitle: '全球同龄人在干嘛',
+    peerStoryTitle: '全球同咖',
     weeklyStory: '本周故事',
     whatYouCanLearn: '你可以学到',
     income: '收入',
     funding: '融了',
-    soloEntrepreneurTitle: '一人公司 / 青年创业者',
+    soloEntrepreneurTitle: '独立创咖 / 青年创业者',
     indieMaker: '独立开发者'
   }
 };
@@ -513,7 +513,7 @@ export default function App() {
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
               AI
             </div>
-            <h1 className="text-lg font-semibold tracking-tight">Pulse</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
             {data?.isDemo && (
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 ml-2 animate-pulse">
                 <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
@@ -808,7 +808,7 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: News & Signals */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Today's Signal (Hero) */}
+            {/* Heavy Hitter (Hero) */}
             <section className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
               <div className="relative z-10 space-y-4">
@@ -923,7 +923,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* AI Agent Directory Section */}
+            {/* Self-Service Bar Section */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-2">
                 <h3 className="text-xl font-bold flex items-center gap-2">
@@ -1203,7 +1203,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* Campus Voice - Student Only */}
+            {/* No Pretending - I Use AI Too - Student Only */}
             {persona === 'student' && (
               <CampusVoice t={t} language={language} />
             )}
@@ -1275,7 +1275,7 @@ export default function App() {
               <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
                 AI
               </div>
-              <h1 className="text-lg font-semibold tracking-tight">Pulse</h1>
+              <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
               {t.footerDesc}
@@ -1286,7 +1286,7 @@ export default function App() {
             <ul className="space-y-2 text-sm text-gray-500">
               <li><a href="#" className="hover:text-black">Daily Briefing</a></li>
               <li><a href="#" className="hover:text-black">Market Signals</a></li>
-              <li><a href="#" className="hover:text-black">Learning Path</a></li>
+              <li><a href="#" className="hover:text-black">{t.learningPath}</a></li>
             </ul>
           </div>
           <div>
@@ -1306,7 +1306,7 @@ export default function App() {
           </div>
         </div>
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© 2026 AI Pulse Intelligence. {t.rights}</p>
+          <p>© 2026 AI Shot Intelligence. {t.rights}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-black">Twitter</a>
             <a href="#" className="hover:text-black">LinkedIn</a>

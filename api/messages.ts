@@ -12,7 +12,7 @@ const messages: Message[] = [
   {
     id: "1",
     user: "System",
-    text: "Welcome to Campus Voice! Share your AI insights here.",
+    text: "Welcome! Share your AI insights here.",
     timestamp: new Date().toISOString(),
   },
 ];

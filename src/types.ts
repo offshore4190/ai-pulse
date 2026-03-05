@@ -111,7 +111,7 @@ export interface MajorDeepDive {
   forums: { name: string; url: string; description: string }[];
 }
 
-/** Campus Voice WebSocket message */
+/** No Pretending - I Use AI Too WebSocket message */
 export interface CampusVoiceMessage {
   id: string;
   user: string;

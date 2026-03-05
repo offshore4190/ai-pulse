@@ -17,7 +17,7 @@ async function startServer() {
 
   // Store messages in memory for now (simple demo)
   const messages: any[] = [
-    { id: 1, user: "System", text: "Welcome to Campus Voice! Share your AI insights here.", timestamp: new Date().toISOString() }
+    { id: 1, user: "System", text: "Welcome! Share your AI insights here.", timestamp: new Date().toISOString() }
   ];
 
   wss.on("connection", (ws) => {
