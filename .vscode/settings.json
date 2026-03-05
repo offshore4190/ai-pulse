@@ -1,0 +1,4 @@
+{
+    "window.autoDetectColorScheme": true,
+    "css.lint.unknownAtRules": "ignore"
+}
