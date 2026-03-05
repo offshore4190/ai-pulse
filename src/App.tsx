@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   TrendingUp, 
@@ -30,27 +30,10 @@ import {
   Lightbulb,
   Rocket
 } from 'lucide-react';
-import { Persona, DashboardData, Language, TranslationKeys, CampusVoiceMessage, SideHustle, PeerStory, SoloEntrepreneur } from './types';
-import { fetchDashboardData, prefetchNextData } from './services/geminiService';
+import { Persona, DashboardData, Language, Discipline } from './types';
+import { fetchDashboardData } from './services/geminiService';
 
-// Lazy load heavy components for better performance
-const CampusVoice = lazy(() => import('./components/CampusVoice'));
-const SideHustleSection = lazy(() => import('./components/SideHustleSection'));
-const PeerStorySection = lazy(() => import('./components/PeerStorySection'));
-const SoloEntrepreneurSection = lazy(() => import('./components/SoloEntrepreneurSection'));
-
-function FormatDate(dateStr?: string) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const Y = date.getFullYear();
-  const M = String(date.getMonth() + 1).padStart(2, '0');
-  const D = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const m = String(date.getMinutes()).padStart(2, '0');
-  return `${Y}-${M}-${D} ${h}:${m}`;
-}
-
-const translations: Record<Language, TranslationKeys> = {
+const translations = {
 // ... existing translations ...
 // ... existing translations ...
   en: {
@@ -100,7 +83,6 @@ const translations: Record<Language, TranslationKeys> = {
     forums: 'Community Forums',
     backToDashboard: 'Back to Dashboard',
     deepDiveTitle: 'AI + Major Deep Dive',
-    productionTime: 'Production Time',
     viewPost: 'View Post',
     campusVoice: 'Campus Voice',
     campusVoiceDesc: 'Share your AI insights with fellow students.',
@@ -165,7 +147,6 @@ const translations: Record<Language, TranslationKeys> = {
     forums: '可交流的论坛',
     backToDashboard: '返回仪表盘',
     deepDiveTitle: 'AI + 专业 深度探索',
-    productionTime: '产出时间',
     viewPost: '查看原文',
     campusVoice: '校园之声',
     campusVoiceDesc: '与同学分享你的 AI 见解。',
@@ -185,10 +166,295 @@ const translations: Record<Language, TranslationKeys> = {
   }
 };
 
+function CampusVoice({ t, language }: { t: any, language: Language }) {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [inputText, setInputText] = useState("");
+  const socketRef = useRef<WebSocket | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-const LoadingFallback = () => (
-  <div className="h-48 bg-white rounded-3xl animate-pulse border border-black/5" />
-);
+  useEffect(() => {
+    // Determine WebSocket URL based on current origin
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}`;
+    
+    const socket = new WebSocket(wsUrl);
+    socketRef.current = socket;
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "init") {
+        setMessages(message.data);
+      } else if (message.type === "new_message") {
+        setMessages((prev) => [...prev, message.data]);
+      }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = () => {
+    if (!inputText.trim() || !socketRef.current) return;
+    
+    socketRef.current.send(JSON.stringify({
+      type: "post",
+      text: inputText.trim(),
+      user: t.anonymous
+    }));
+    
+    setInputText("");
+  };
+
+  return (
+    <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden flex flex-col h-[400px]">
+      <div className="p-5 border-b border-black/5 bg-indigo-50/30 flex items-center justify-between">
+        <h3 className="font-bold flex items-center gap-2">
+          <MessageSquare size={18} className="text-indigo-600" />
+          {t.campusVoice}
+        </h3>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{t.live}</span>
+        </div>
+      </div>
+      
+      <div 
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth"
+      >
+        {messages.map((msg) => (
+          <div key={msg.id} className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">{msg.user}</span>
+              <span className="text-[10px] text-gray-400">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-2xl rounded-tl-none border border-black/5">
+              <p className="text-sm text-gray-700 leading-relaxed">{msg.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="p-4 border-t border-black/5 bg-gray-50/30 space-y-3">
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder={t.sharePlaceholder}
+            className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+          />
+          <button 
+            onClick={handleSend}
+            disabled={!inputText.trim()}
+            className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium italic">
+          <ShieldCheck size={12} className="text-emerald-500" />
+          {t.complianceNotice}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between px-2">
+        <h3 className="text-xl font-bold flex items-center gap-2">
+          <Coins size={20} className="text-amber-500" />
+          {t.sideHustleTitle}
+        </h3>
+        <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
+          {t.lowCostStart}
+        </span>
+      </div>
+      <div className="space-y-4">
+        {sideHustles.map((hustle, idx) => (
+          <motion.div 
+            key={hustle.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold">
+                  {idx + 1}
+                </div>
+                <h4 className="font-bold text-lg">{hustle.title}</h4>
+              </div>
+              <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
+                {hustle.income}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {hustle.description}
+            </p>
+            <div className="bg-gray-50/50 p-4 rounded-2xl space-y-2">
+              {hustle.steps.map((step: string, sIdx: number) => (
+                <div key={sIdx} className="flex items-start gap-3">
+                  <div className="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                    {sIdx + 1}
+                  </div>
+                  <p className="text-xs text-gray-700 font-medium">{step}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PeerStorySection({ t, story }: { t: any, story: any }) {
+  if (!story || !story.author) return null;
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between px-2">
+        <h3 className="text-xl font-bold flex items-center gap-2">
+          <Globe size={20} className="text-blue-500" />
+          {t.peerStoryTitle}
+        </h3>
+        <span className="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
+          {t.weeklyStory}
+        </span>
+      </div>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-6"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img 
+              src={story.author.avatar} 
+              alt="" 
+              className="w-12 h-12 rounded-2xl bg-gray-100" 
+              referrerPolicy="no-referrer"
+            />
+            <div>
+              <h4 className="font-bold text-lg">{story.author.name}</h4>
+              <p className="text-xs text-gray-500 font-medium">
+                {story.author.school} • {story.author.status}
+              </p>
+            </div>
+          </div>
+          <div className="bg-emerald-50 text-emerald-600 text-xs font-bold px-3 py-1 rounded-lg">
+            {story.funding}
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <h5 className="font-bold text-gray-800 leading-tight">{story.title}</h5>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {story.content}
+          </p>
+        </div>
+
+        <div className="pt-4 border-t border-black/5">
+          <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-2">
+            <Lightbulb size={14} />
+            {t.whatYouCanLearn}
+          </div>
+          <p className="text-sm font-medium text-gray-700 italic">
+            {story.takeaway}
+          </p>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: any[] }) {
+  if (!entrepreneurs || entrepreneurs.length === 0) return null;
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between px-2">
+        <h3 className="text-xl font-bold flex items-center gap-2">
+          <Rocket size={20} className="text-rose-500" />
+          {t.soloEntrepreneurTitle}
+        </h3>
+        <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
+          {t.indieMaker}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-4">
+        {entrepreneurs.map((person, idx) => (
+          <motion.div 
+            key={person.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={person.avatar} 
+                  alt="" 
+                  className="w-10 h-10 rounded-xl bg-gray-100" 
+                  referrerPolicy="no-referrer"
+                />
+                <div>
+                  <h4 className="font-bold text-sm">{person.name}</h4>
+                  <p className="text-[10px] text-gray-500 font-medium">{person.role}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-rose-600">{person.revenue}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Revenue</p>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Project:</span>
+                <span className="text-sm font-bold text-gray-800">{person.project}</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {person.stack.map((tech: string) => (
+                  <span key={tech} className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-bold uppercase">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-rose-50/50 p-3 rounded-2xl border border-rose-100/50">
+              <p className="text-xs text-rose-900 leading-relaxed italic">
+                "{person.insight}"
+              </p>
+            </div>
+
+            <a 
+              href={person.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2 bg-gray-50 hover:bg-black hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+            >
+              {t.visitSite} <ExternalLink size={12} />
+            </a>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function App() {
   const [persona, setPersona] = useState<Persona>('investor');
@@ -202,11 +468,6 @@ export default function App() {
 
   useEffect(() => {
     loadData();
-    // Prefetch next data after a short delay to boost perceived performance
-    const timer = setTimeout(() => {
-      prefetchNextData(persona, language);
-    }, 5000);
-    return () => clearTimeout(timer);
   }, [persona, language]);
 
   const loadData = async () => {
@@ -223,12 +484,11 @@ export default function App() {
       if (result.isDemo) {
         console.warn("Displaying demo data due to API quota limits.");
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err);
       // Only show error card if we have NO data at all (not even demo/cached)
       if (!data) {
-        const message = err instanceof Error ? err.message : 'Failed to fetch data';
-        setError(message);
+        setError(err.message || 'Failed to fetch data');
       }
     } finally {
       setLoading(false);
@@ -245,64 +505,52 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans selection:bg-emerald-100 overflow-x-hidden`}>
+    <div className={`min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans selection:bg-emerald-100`}>
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
-                AI
-              </div>
-              <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
-              {data?.isDemo && (
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 ml-2 animate-pulse">
-                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{t.demoMode}</span>
-                </div>
-              )}
-              {data?.isBreakingNews && (
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md border border-rose-200 ml-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Breaking</span>
-                </div>
-              )}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-bottom border-black/5 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
+              AI
             </div>
-            {data?.producedAt && (
-              <div className="text-[10px] text-gray-400 font-medium mt-1">
-                {t.productionTime}: {FormatDate(data.producedAt)}
+            <h1 className="text-lg font-semibold tracking-tight">Pulse</h1>
+            {data?.isDemo && (
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 ml-2 animate-pulse">
+                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">{t.demoMode}</span>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <div className="flex items-center bg-black/5 p-0.5 sm:p-1 rounded-full">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center bg-black/5 p-1 rounded-full">
               <button 
                 onClick={() => setPersona('investor')}
-                className={`px-2 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
               >
-                <BarChart3 size={14} className="flex-shrink-0" />
-                <span className="hidden sm:inline">{t.investor}</span>
+                <BarChart3 size={14} />
+                {t.investor}
               </button>
               <button 
                 onClick={() => setPersona('student')}
-                className={`px-2 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
               >
-                <GraduationCap size={14} className="flex-shrink-0" />
-                <span className="hidden sm:inline">{t.student}</span>
+                <GraduationCap size={14} />
+                {t.student}
               </button>
             </div>
 
             <button 
               onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
-              className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-xs sm:text-sm font-medium transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+              className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium transition-colors"
             >
               <Languages size={14} />
-              <span className="hidden sm:inline">{language === 'en' ? '中文' : 'EN'}</span>
+              {language === 'en' ? '中文' : 'EN'}
             </button>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <button className="p-2.5 sm:p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center">
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
               <Search size={20} />
             </button>
             <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
@@ -353,7 +601,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="divide-y divide-black/5">
-                      {(data?.majorDeepDive?.papers ?? []).map((paper) => (
+                      {data?.majorDeepDive?.papers.map((paper) => (
                         <a 
                           key={paper.id}
                           href={paper.url}
@@ -395,7 +643,7 @@ export default function App() {
                       </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-black/5">
-                      {(data?.majorDeepDive?.majorNews ?? []).map((news) => (
+                      {data?.majorDeepDive?.majorNews.map((news) => (
                         <a 
                           key={news.id}
                           href={news.url}
@@ -434,7 +682,7 @@ export default function App() {
                       </h3>
                     </div>
                     <div className="p-3 space-y-2">
-                      {(data?.majorDeepDive?.forums ?? []).map((forum) => (
+                      {data?.majorDeepDive?.forums.map((forum) => (
                         <a 
                           key={forum.name}
                           href={forum.url}
@@ -592,10 +840,7 @@ export default function App() {
                         </p>
                       </div>
                       <button 
-                        onClick={() => {
-                          const url = data?.todaySignal?.url;
-                          if (url) window.open(url, '_blank');
-                        }}
+                        onClick={() => window.open(data?.todaySignal.url, '_blank')}
                         className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center"
                       >
                         {t.readAnalysis}
@@ -845,7 +1090,6 @@ export default function App() {
                               alt="" 
                               className="w-10 h-10 rounded-full bg-gray-100" 
                               referrerPolicy="no-referrer"
-                              loading="lazy"
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
@@ -889,11 +1133,11 @@ export default function App() {
 
             {/* Student Specific Modules */}
             {persona === 'student' && !loading && data && (
-              <Suspense fallback={<LoadingFallback />}>
+              <>
                 <SideHustleSection t={t} sideHustles={data.sideHustles || []} />
                 <PeerStorySection t={t} story={data.peerStory} />
                 <SoloEntrepreneurSection t={t} entrepreneurs={data.soloEntrepreneurs || []} />
-              </Suspense>
+              </>
             )}
 
             {/* Deals or Learning Resources */}
@@ -961,9 +1205,7 @@ export default function App() {
 
             {/* Campus Voice - Student Only */}
             {persona === 'student' && (
-              <Suspense fallback={<LoadingFallback />}>
-                <CampusVoice t={t} language={language} />
-              </Suspense>
+              <CampusVoice t={t} language={language} />
             )}
 
             {/* Topic Heatmap */}
@@ -1006,8 +1248,8 @@ export default function App() {
                   (data?.calendar || []).map((item) => (
                     <div key={item.event} className="flex gap-4">
                       <div className="flex-shrink-0 w-10 text-center">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase">{(item.date || "AI").split(' ')[0]}</p>
-                        <p className="text-lg font-bold leading-none">{(item.date || "Shot").split(' ')[1] || ""}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">{item.date.split(' ')[0]}</p>
+                        <p className="text-lg font-bold leading-none">{item.date.split(' ')[1]}</p>
                       </div>
                       <div className="flex-1 pb-4 border-b border-black/5 last:border-0">
                         <p className="text-sm font-bold">{item.event}</p>
@@ -1033,7 +1275,7 @@ export default function App() {
               <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
                 AI
               </div>
-              <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
+              <h1 className="text-lg font-semibold tracking-tight">Pulse</h1>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
               {t.footerDesc}
@@ -1064,7 +1306,7 @@ export default function App() {
           </div>
         </div>
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© 2026 AI Shot. {t.rights}</p>
+          <p>© 2026 AI Pulse Intelligence. {t.rights}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-black">Twitter</a>
             <a href="#" className="hover:text-black">LinkedIn</a>
