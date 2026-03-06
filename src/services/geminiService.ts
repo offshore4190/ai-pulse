@@ -85,18 +85,26 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
     2. ABUNDANCE: Provide a rich set of data. 
        - For Investor: Aim for 6-8 news items, 4 social signals, and 5-6 agent introductions.
        - For Student: Aim for 6-8 news items, 2 side hustle inspirations ("sideHustles"), 1 peer story ("peerStory"), 2-3 solo entrepreneur profiles ("soloEntrepreneurs"), and 5-6 agent introductions. DO NOT provide "socialSignals" for Students.
-    3. DIRECT LINKS: Every "url" MUST be a direct link to a SPECIFIC article, research paper, blog post, or project page. 
+    3. DIRECT LINKS: Every "url" MUST be a direct link to a SPECIFIC article, blog post, or project page. For "news", prefer official AI company blog posts (openai.com/blog, anthropic.com/news, deepmind.google/blog, ai.meta.com/blog) and top-tier tech media (TechCrunch, The Verge, Wired, VentureBeat).
     4. NO HOMEPAGES: Do NOT use generic domain links (e.g., research.google or arxiv.org). Use the full deep-link path (e.g., research.google/blog/article-name/).
-    5. SOCIAL SIGNALS (Investor Only): Use REAL, SPECIFIC post URLs from X (Twitter), LinkedIn, or official AI company blogs (OpenAI, Anthropic, DeepMind). NO FAKE HANDLES. Prefer deep links to specific posts (e.g., x.com/user/status/123) over profile links.
+    5. SOCIAL SIGNALS (Investor Only): Use REAL, SPECIFIC post URLs from X (Twitter) (x.com/user/status/...), YouTube videos (youtube.com/watch?v=...), or Reddit threads (reddit.com/r/.../comments/...). NO FAKE HANDLES. NO arxiv links in this section.
     6. TWITTER LINKS: Ensure all Twitter (X) links are valid and lead to the actual content described. If a specific post URL is unavailable, use a highly relevant official blog post or research page instead.
-    7. MAJOR INSIGHTS: For "majorInsights", provide EXACTLY 4 items, one for each discipline: "humanities", "science", "engineering", and "business". Each should be a high-impact breakthrough.
+    7. MAJOR INSIGHTS: For "majorInsights", provide EXACTLY 4 items, one for each discipline: "humanities", "science", "engineering", and "business". Each should be a high-impact breakthrough. Use official research blog posts (research.google/blog/, ai.meta.com/research/, openai.com/research/) — NOT raw arxiv links.
     8. DEEP DIVE: Provide a "majorDeepDive" object for the expanded view. 
-       - "papers": 4-5 real, high-impact recent AI papers with direct links (arXiv/OpenReview).
-       - "majorNews": 4-5 news items specifically about AI integration in Humanities, Science, Engineering, and Business.
-       - "forums": 3-4 real, active AI communities/forums (e.g., Reddit r/MachineLearning, HF Forums, specific academic AI circles).
+       - "papers": 4-5 real, high-impact recent AI papers with direct links (arXiv/OpenReview). This is the ONLY section that may use arxiv.org links.
+       - "majorNews": 4-5 news items specifically about AI integration in Humanities, Science, Engineering, and Business. Use tech media or official blog links, NOT arxiv.
+       - "forums": 3-4 real, active AI communities/forums (e.g., Reddit r/MachineLearning, HF Forums, YouTube AI channels).
     9. NO HOMEPAGES: Do NOT use generic domain links. Use the full deep-link path.
     10. VERIFICATION: Only include links that are real and accessible.
     11. BREAKING NEWS: Randomly determine if "isBreakingNews" is true based on major events.
+    12. SOURCE RULES (MANDATORY — strictly enforce per field):
+        - news[]: Sources MUST be official AI company blogs or top-tier tech media. NO arxiv or academic paper links.
+        - socialSignals[]: Sources MUST be X (Twitter) posts, YouTube videos, or Reddit threads. NO arxiv links.
+        - deals[]: Sources from Crunchbase, TechCrunch funding articles, or official press releases. NO arxiv links.
+        - sideHustles[], soloEntrepreneurs[]: Sources from YouTube tutorials, Reddit success stories, Indie Hackers, or product landing pages. NO arxiv links.
+        - majorDeepDive.papers[]: ONLY section permitted to use arxiv.org, OpenReview, or Nature paper links.
+        - majorInsights[]: Use official research blog posts only. NO raw arxiv links.
+    13. KEYWORD WEIGHTING: When searching for content, PRIORITIZE topics around: product launch, release, use case, tutorial, trending, revenue, funding, partnership, demo. DEPRIORITIZE: methodology, abstract, mathematical proof, theoretical framework, ablation study.
 
     JSON Schema:
     {
@@ -193,7 +201,7 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
       topics: Array.isArray(data.topics) ? data.topics : [],
       calendar: Array.isArray(data.calendar) ? data.calendar : [],
       majorInsights: Array.isArray(data.majorInsights) ? data.majorInsights : [],
-      majorInsightsUrl: typeof data.majorInsightsUrl === 'string' ? data.majorInsightsUrl : "https://arxiv.org/list/cs.AI/recent",
+      majorInsightsUrl: typeof data.majorInsightsUrl === 'string' ? data.majorInsightsUrl : "https://openai.com/research/",
       majorDeepDive: data.majorDeepDive ? {
         papers: Array.isArray(data.majorDeepDive.papers) ? data.majorDeepDive.papers : [],
         majorNews: Array.isArray(data.majorDeepDive.majorNews) ? data.majorDeepDive.majorNews : [],
@@ -311,7 +319,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         { discipline: "engineering", title: "Generative Design in CAD", content: "AI-driven optimization for structural integrity and material efficiency.", trend: "Autonomous manufacturing pipelines.", url: "https://research.google/blog/a-new-approach-to-computation-offloading-for-on-device-ml/" },
         { discipline: "business", title: "AI-Driven Market Intelligence", content: "Real-time sentiment analysis and predictive modeling for global trade.", trend: "Hyper-personalized consumer experiences.", url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights" }
       ],
-      majorInsightsUrl: "https://arxiv.org/list/cs.AI/recent",
+      majorInsightsUrl: "https://openai.com/research/",
       majorDeepDive: {
         papers: [
           { id: "p1", type: "research", title: "Attention Is All You Need", context: "The seminal paper that introduced the Transformer architecture, replacing RNNs and CNNs for sequence modeling.", source: "arXiv", takeaway: "The foundation of all modern LLMs.", url: "https://arxiv.org/abs/1706.03762", timestamp: "Classic" },
@@ -344,7 +352,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         title: isZh ? "AI 辅助科研效率提升 40%" : "AI-Assisted Research Efficiency Up 40%",
         description: isZh ? "最新研究表明，使用 AI 智能体进行文献综述和实验设计的学生，其产出质量显著提高。" : "Latest studies show students using AI agents for literature review and experimental design see significant quality gains.",
         takeaway: isZh ? "掌握提示词工程将成为未来学术研究的核心竞争力。" : "Mastering prompt engineering will become a core competency for future academic research.",
-        url: "https://arxiv.org/search/?searchtype=all&query=AI+research+efficiency"
+        url: "https://github.blog/ai-and-ml/"
       },
       metrics: [
         { label: "AI Tools Used", value: "85%", change: "+5%", isPositive: true },
@@ -354,7 +362,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         { label: "Learning Rate", value: "Fast", change: "N/A", isPositive: true }
       ],
       news: [
-        { id: "n1", type: "research", title: "New Transformer Architecture", context: "Researchers propose a more efficient way to handle long-context windows.", source: "arXiv", takeaway: "Lower hardware requirements for running large models locally.", timestamp: "1d ago", url: "https://arxiv.org/abs/2401.00000" },
+        { id: "n1", type: "product", title: "GitHub Copilot Gets Smarter Context Windows", context: "GitHub expands Copilot's context window and adds multi-file editing capabilities for complex codebases.", source: "GitHub Blog", takeaway: "Lower barrier to building complex apps with AI assistance.", timestamp: "1d ago", url: "https://github.blog/ai-and-ml/generative-ai/" },
         { id: "n2", type: "product", title: "GitHub Copilot Workspace", context: "A new environment for building entire features with natural language.", source: "GitHub Blog", takeaway: "The barrier to building complex apps is disappearing.", timestamp: "3d ago", url: "https://github.blog/" }
       ],
       socialSignals: [],
