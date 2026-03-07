@@ -45,6 +45,17 @@
         <span class="ml-2 text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase tracking-widest border border-emerald-200">SNAPSHOT</span>
       </div>
       <div class="flex items-center gap-4">
+        <!-- Role Switcher -->
+        <div id="role-switcher" class="flex items-center bg-black/5 rounded-xl p-0.5 gap-0.5">
+          <button id="btn-investor" onclick="switchRole('investor')"
+            class="text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all bg-white shadow text-black">
+            📈 投资人
+          </button>
+          <button id="btn-student" onclick="switchRole('student')"
+            class="text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all text-gray-400">
+            🎓 大学生
+          </button>
+        </div>
         <div class="hidden md:flex flex-col items-end leading-tight">
           <span class="text-[9px] text-gray-400 font-medium uppercase tracking-widest">出炉时间</span>
           <span class="text-[11px] font-bold text-gray-600 font-mono">2026-03-06 &nbsp;09:00</span>
@@ -172,7 +183,7 @@
         </p>
 
         <div class="pt-2 flex flex-col md:flex-row gap-4">
-          <div class="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
+          <div data-role="investor" class="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
             <p class="text-[10px] uppercase font-bold text-emerald-400 mb-2">投资信号</p>
             <p class="text-sm italic leading-relaxed">
               "成本骤降 40% 意味着 AI 应用层的利润空间正在急剧扩大。关注基于 Gemini API 的垂直 SaaS 玩家，这是本周最大的结构性机会。"
@@ -216,7 +227,7 @@
                 Mistral AI 完成 $6 亿 B 轮，估值达 $60 亿，欧洲开源 LLM 阵营强势崛起
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">Andreessen Horowitz 领投，General Catalyst 跟投。Mistral 计划将资金用于扩大模型规模并进军企业级合规市场。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-emerald-600 uppercase mr-2">投资信号:</span>
                   欧洲 AI 主权叙事加速，关注 Mistral 潜在的政府合同和合规赛道衍生机会。
@@ -241,7 +252,7 @@
                 ChatGPT 推出 "Projects 2.0"：跨会话记忆 + 团队协作，月活用户突破 5 亿
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">新功能支持团队共享上下文、自定义 AI 人格和长期任务追踪，企业版定价调整为每用户 $30/月。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-blue-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-blue-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-blue-600 uppercase mr-2">投资信号:</span>
                   ARPU 提升路径清晰，协作功能将加速企业替换 Notion/Confluence 等工具的进程。
@@ -266,7 +277,7 @@
                 MIT 新研究：Mixture-of-Experts 架构在千亿参数规模下实现 3x 推理加速
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">研究团队提出 "Sparse Routing 2.0" 方法，在保持模型质量的前提下，推理成本降至传统 Dense 模型的 33%。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-purple-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-purple-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-purple-600 uppercase mr-2">投资信号:</span>
                   推理成本持续压缩，AI 基础设施层的竞争格局将重塑，关注英伟达 H100 需求变化。
@@ -291,7 +302,7 @@
                 欧盟 AI 法案正式生效第一波：高风险 AI 系统须在 6 个月内完成合规备案
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">监管机构明确 "高风险" 范畴包含医疗、招聘、信贷、司法等领域，违规企业最高罚款为全球年营收的 6%。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-rose-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-rose-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-rose-600 uppercase mr-2">投资信号:</span>
                   AI 合规赛道爆发在即，RegTech 和可解释 AI 工具将迎来第一波企业采购潮。
@@ -316,7 +327,7 @@
                 Meta 开源 LLaMA 4 Scout：仅 9B 参数跑赢 GPT-3.5，单卡消费级 GPU 可运行
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">LLaMA 4 Scout 采用全新 GQA 压缩架构，支持 256k token 上下文，在 RTX 4090 上以 70 tokens/s 速度运行。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-amber-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-amber-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-amber-600 uppercase mr-2">投资信号:</span>
                   边缘 AI 推理门槛急剧下降，关注本地部署、隐私优先的企业应用场景投资机会。
@@ -341,7 +352,7 @@
                 Perplexity AI 获 SoftBank $5 亿战略投资，加速布局亚太搜索市场
               </h4>
               <p class="text-sm text-gray-500 line-clamp-2">此轮融资后 Perplexity 估值升至 $80 亿，将在东京和新加坡设立研发中心，并与软银旗下运营商联合推出本地化 AI 搜索套餐。</p>
-              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
+              <div data-role="investor" class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
                 <p class="text-xs font-medium text-gray-700">
                   <span class="font-bold text-emerald-600 uppercase mr-2">投资信号:</span>
                   AI 搜索替代传统搜索的窗口期正在打开，谷歌亚太广告收入存在结构性下行风险。
@@ -362,7 +373,7 @@
       <!-- ═══════════════════════════════════════════
            MODULE 5 · DEALS
       ═══════════════════════════════════════════ -->
-      <section class="lg:col-span-3 bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+      <section data-role="investor" class="lg:col-span-3 bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-black/5 bg-gray-50/50 flex items-center justify-between">
           <h3 class="font-bold flex items-center gap-2">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-500"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -570,7 +581,7 @@
     <!-- ═══════════════════════════════════════════
          MODULE · PEER STORY
     ═══════════════════════════════════════════ -->
-    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+    <section data-role="student" class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-black/5 bg-indigo-50/30 flex items-center justify-between">
         <h3 class="font-bold flex items-center gap-2 text-indigo-900">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-500"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a1 1 0 1 1-1 1 1 1 0 0 1 1-1zm2 13H10v-1l2-7-2-1v-1h4v1l-2 7 2 1z"/></svg>
@@ -604,7 +615,7 @@
     <!-- ═══════════════════════════════════════════
          MODULE · SIDE HUSTLE
     ═══════════════════════════════════════════ -->
-    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+    <section data-role="student" class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-black/5 bg-amber-50/30 flex items-center justify-between">
         <h3 class="font-bold flex items-center gap-2 text-amber-900">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-500"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
@@ -646,7 +657,7 @@
     <!-- ═══════════════════════════════════════════
          MODULE · SOLO ENTREPRENEUR
     ═══════════════════════════════════════════ -->
-    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+    <section data-role="student" class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-black/5 bg-rose-50/30 flex items-center justify-between">
         <h3 class="font-bold flex items-center gap-2 text-rose-900">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-rose-500"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5c-1.51 0-2.816.917-3.437 2.25-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484z"/></svg>
@@ -762,6 +773,36 @@
     </div>
   </footer>
 
+
+  <!-- ═══════════════════════════════════════════
+       ROLE SWITCHER
+  ═══════════════════════════════════════════ -->
+  <script>
+    function switchRole(role) {
+      var btnInvestor = document.getElementById('btn-investor');
+      var btnStudent = document.getElementById('btn-student');
+      var activeClass = 'text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all bg-white shadow text-black';
+      var inactiveClass = 'text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all text-gray-400';
+
+      if (role === 'investor') {
+        btnInvestor.className = activeClass;
+        btnStudent.className = inactiveClass;
+      } else {
+        btnInvestor.className = inactiveClass;
+        btnStudent.className = activeClass;
+      }
+
+      document.querySelectorAll('[data-role="investor"]').forEach(function(el) {
+        el.style.display = role === 'investor' ? '' : 'none';
+      });
+      document.querySelectorAll('[data-role="student"]').forEach(function(el) {
+        el.style.display = role === 'student' ? '' : 'none';
+      });
+    }
+
+    // 默认投资人视角
+    switchRole('investor');
+  </script>
 
   <!-- ═══════════════════════════════════════════
        QR CODE GENERATION (qrcode.js CDN)
