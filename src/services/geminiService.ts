@@ -138,7 +138,7 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
     const fetchWithRetry = async (retries = 3, delay = 2000): Promise<GeminiResponse> => {
       try {
         const response = await getAI().models.generateContent({
-          model: "gemini-1.5-flash",
+          model: "gemini-2.0-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
