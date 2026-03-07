@@ -91,13 +91,18 @@ JSON Schema (respond with ONLY valid JSON, no markdown):
       });
       return response;
     } catch (err) {
-      const isRetryable =
-        (err?.message?.includes('429') || err?.status === 'RESOURCE_EXHAUSTED') ||
-        (err?.message?.includes('500') || err?.status === 'INTERNAL');
-      if (isRetryable && retries > 0) {
+      const isQuota = err?.message?.includes('429') || err?.status === 'RESOURCE_EXHAUSTED';
+      const isServerError = err?.message?.includes('500') || err?.status === 'INTERNAL';
+      // 429 配额耗尽不重试，直接抛出以便上层优雅处理
+      if (isServerError && retries > 0) {
         console.log(`API error (${err?.status}), retrying in ${delay}ms… (${retries} left)`);
         await new Promise(r => setTimeout(r, delay));
         return fetchWithRetry(retries - 1, delay * 2);
+      }
+      if (isQuota) {
+        const quotaErr = new Error('QUOTA_EXHAUSTED');
+        quotaErr.isQuota = true;
+        throw quotaErr;
       }
       throw err;
     }
@@ -684,6 +689,11 @@ async function main() {
 }
 
 main().catch(err => {
+  if (err.isQuota) {
+    console.warn('[generate-snap] ⚠ API 配额已耗尽，跳过今日更新，保留现有 snap.html。');
+    console.warn('[generate-snap] 配额将在 UTC 00:00 重置后恢复。');
+    process.exit(0);
+  }
   console.error('[generate-snap] 失败:', err);
   process.exit(1);
 });
