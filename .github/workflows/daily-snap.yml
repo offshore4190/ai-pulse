@@ -1,0 +1,44 @@
+name: Daily Snap
+
+on:
+  schedule:
+    # 每天 UTC 01:00（北京时间 09:00）触发
+    - cron: '0 1 * * *'
+  # 允许在 GitHub Actions 页面手动触发
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 允许 push 回仓库
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate snap.html
+        run: node scripts/generate-snap.mjs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # APP_URL 为 Vercel 部署域名，用于生成二维码 URL
+          # 例如：https://ai-pulse.vercel.app
+          APP_URL: ${{ secrets.APP_URL }}
+
+      - name: Commit and push snap.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/snap.html
+          # 只有内容变更时才提交，避免空提交
+          git diff --staged --quiet || git commit -m "chore: daily snap $(date +%F)"
+          git push

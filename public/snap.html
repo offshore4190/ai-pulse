@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第一杯 · 每日 AI 情报快照 — 2026-03-06</title>
+  <meta name="description" content="第一杯每日 AI 情报快照 2026-03-06，涵盖今日重磅、融资交易、热点话题。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { overflow-x: hidden; }
+    body { overflow-x: hidden; }
+    #qr-canvas { display: block; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes bounce-subtle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  </style>
+</head>
+<body class="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans selection:bg-emerald-100">
+
+  <!-- ═══════════════════════════════════════════
+       NAV BAR
+  ═══════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5 px-4 py-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center text-white font-bold text-base">☕</div>
+        <h1 class="text-lg font-semibold tracking-tight">第一杯</h1>
+        <span class="ml-2 text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase tracking-widest border border-emerald-200">SNAPSHOT</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex flex-col items-end leading-tight">
+          <span class="text-[9px] text-gray-400 font-medium uppercase tracking-widest">出炉时间</span>
+          <span class="text-[11px] font-bold text-gray-600 font-mono">2026-03-06 &nbsp;09:00</span>
+        </div>
+        <!-- QR Code -->
+        <div class="hidden md:flex flex-col items-center gap-1" title="扫码访问在线版">
+          <canvas id="qr-canvas" class="rounded" width="56" height="56"></canvas>
+          <span class="text-[9px] text-gray-400 font-medium">扫码访问</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- ═══════════════════════════════════════════
+         MODULE 1 · HERO
+    ═══════════════════════════════════════════ -->
+    <section class="relative rounded-3xl overflow-hidden bg-white border border-black/5 shadow-sm px-8 py-12 text-center space-y-5">
+      <!-- Decorative blobs -->
+      <div class="absolute -top-20 -left-20 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-4">
+        <div class="flex items-center justify-center gap-3 flex-wrap">
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">第 47 期</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">2026年03月06日 · 周五</span>
+          <span class="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>LIVE
+          </span>
+        </div>
+
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-none text-[#1A1A1A]">
+          今日 AI 情报
+          <span class="text-amber-700"> · </span>
+          <span class="text-emerald-600">一杯读完</span>
+        </h2>
+
+        <p class="text-gray-500 text-lg max-w-xl mx-auto leading-relaxed">
+          高密度精选 · 融资信号 · 热门研究 · 模型进展 · 今日必读，晨间一次搞定。
+        </p>
+
+        <div class="flex items-center justify-center gap-4 pt-2 flex-wrap">
+          <a href="#top-story" class="bg-black text-white font-bold px-6 py-3 rounded-2xl hover:bg-gray-800 transition-all text-sm flex items-center gap-2">
+            ↓ 直达今日重磅
+          </a>
+          <a href="#news" class="bg-white border border-black/10 text-black font-bold px-6 py-3 rounded-2xl hover:bg-gray-50 transition-all text-sm">
+            浏览全部资讯
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MODULE 2 · METRICS
+    ═══════════════════════════════════════════ -->
+    <section class="space-y-3">
+      <div class="flex items-center gap-2 px-1">
+        <span class="w-1 h-4 rounded-full bg-amber-700 inline-block"></span>
+        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">今日关键指标</h3>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <!-- Metric 1 -->
+        <div class="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">全球融资额</p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold font-mono">$2.4B</span>
+            <span class="text-[11px] font-medium text-emerald-600 flex items-center">↑ 18%</span>
+          </div>
+        </div>
+        <!-- Metric 2 -->
+        <div class="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">新模型发布</p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold font-mono">7</span>
+            <span class="text-[11px] font-medium text-emerald-600 flex items-center">↑ 3</span>
+          </div>
+        </div>
+        <!-- Metric 3 -->
+        <div class="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">热点讨论量</p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold font-mono">3.1M</span>
+            <span class="text-[11px] font-medium text-rose-600 flex items-center">↓ 5%</span>
+          </div>
+        </div>
+        <!-- Metric 4 -->
+        <div class="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">学术论文数</p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold font-mono">142</span>
+            <span class="text-[11px] font-medium text-emerald-600 flex items-center">↑ 22</span>
+          </div>
+        </div>
+        <!-- Metric 5 -->
+        <div class="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">开源项目</p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold font-mono">89</span>
+            <span class="text-[11px] font-medium text-emerald-600 flex items-center">↑ 14</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MODULE 3 · TODAY'S HEAVY HITTER
+    ═══════════════════════════════════════════ -->
+    <section id="top-story" class="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
+      <div class="absolute top-0 right-0 w-72 h-72 bg-emerald-500/20 blur-[100px] -mr-36 -mt-36 rounded-full pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/10 blur-[80px] -ml-24 -mb-24 rounded-full pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-5">
+        <div class="flex items-center gap-2 text-emerald-400">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="text-xs font-bold uppercase tracking-[0.2em]">重磅热咖</span>
+        </div>
+
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
+          Google 发布 Gemini 2.0 Ultra：多模态推理全面超越 GPT-4o，成本降低 40%
+        </h2>
+
+        <p class="text-gray-400 text-lg max-w-2xl leading-relaxed">
+          Google DeepMind 正式推出 Gemini 2.0 Ultra，原生支持视频理解、代码执行和实时网络搜索，在 MMLU、HumanEval、MathBench 三项基准上刷新行业记录，同时将 API 调用成本压缩至 GPT-4o 的 60%。
+        </p>
+
+        <div class="pt-2 flex flex-col md:flex-row gap-4">
+          <div class="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
+            <p class="text-[10px] uppercase font-bold text-emerald-400 mb-2">投资信号</p>
+            <p class="text-sm italic leading-relaxed">
+              "成本骤降 40% 意味着 AI 应用层的利润空间正在急剧扩大。关注基于 Gemini API 的垂直 SaaS 玩家，这是本周最大的结构性机会。"
+            </p>
+          </div>
+          <a href="https://blog.google/technology/google-deepmind/gemini-2-ultra/" target="_blank" rel="noopener noreferrer"
+            class="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center text-sm">
+            阅读深度分析
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MODULE 4 · NEWS FEED
+    ═══════════════════════════════════════════ -->
+    <section id="news" class="space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-700"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          投研黑咖
+        </h3>
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">2026-03-06</span>
+      </div>
+
+      <div class="space-y-3">
+
+        <!-- News 1: Funding -->
+        <a href="https://techcrunch.com" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">TechCrunch · 2h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-emerald-600 transition-colors">
+                Mistral AI 完成 $6 亿 B 轮，估值达 $60 亿，欧洲开源 LLM 阵营强势崛起
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">Andreessen Horowitz 领投，General Catalyst 跟投。Mistral 计划将资金用于扩大模型规模并进军企业级合规市场。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-emerald-600 uppercase mr-2">投资信号:</span>
+                  欧洲 AI 主权叙事加速，关注 Mistral 潜在的政府合同和合规赛道衍生机会。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- News 2: Product -->
+        <a href="https://openai.com" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">OpenAI Blog · 4h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-blue-600 transition-colors">
+                ChatGPT 推出 "Projects 2.0"：跨会话记忆 + 团队协作，月活用户突破 5 亿
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">新功能支持团队共享上下文、自定义 AI 人格和长期任务追踪，企业版定价调整为每用户 $30/月。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-blue-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-blue-600 uppercase mr-2">投资信号:</span>
+                  ARPU 提升路径清晰，协作功能将加速企业替换 Notion/Confluence 等工具的进程。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- News 3: Research -->
+        <a href="https://arxiv.org" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">arXiv · 6h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-purple-600 transition-colors">
+                MIT 新研究：Mixture-of-Experts 架构在千亿参数规模下实现 3x 推理加速
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">研究团队提出 "Sparse Routing 2.0" 方法，在保持模型质量的前提下，推理成本降至传统 Dense 模型的 33%。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-purple-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-purple-600 uppercase mr-2">投资信号:</span>
+                  推理成本持续压缩，AI 基础设施层的竞争格局将重塑，关注英伟达 H100 需求变化。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- News 4: Policy -->
+        <a href="https://www.reuters.com" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-rose-50 group-hover:text-rose-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Reuters · 8h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-rose-600 transition-colors">
+                欧盟 AI 法案正式生效第一波：高风险 AI 系统须在 6 个月内完成合规备案
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">监管机构明确 "高风险" 范畴包含医疗、招聘、信贷、司法等领域，违规企业最高罚款为全球年营收的 6%。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-rose-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-rose-600 uppercase mr-2">投资信号:</span>
+                  AI 合规赛道爆发在即，RegTech 和可解释 AI 工具将迎来第一波企业采购潮。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- News 5: Tech -->
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-amber-50 group-hover:text-amber-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">GitHub · 10h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-amber-600 transition-colors">
+                Meta 开源 LLaMA 4 Scout：仅 9B 参数跑赢 GPT-3.5，单卡消费级 GPU 可运行
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">LLaMA 4 Scout 采用全新 GQA 压缩架构，支持 256k token 上下文，在 RTX 4090 上以 70 tokens/s 速度运行。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-amber-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-amber-600 uppercase mr-2">投资信号:</span>
+                  边缘 AI 推理门槛急剧下降，关注本地部署、隐私优先的企业应用场景投资机会。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- News 6: Funding -->
+        <a href="https://www.bloomberg.com" target="_blank" rel="noopener noreferrer"
+          class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block">
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Bloomberg · 12h ago</span>
+              </div>
+              <h4 class="text-lg font-bold leading-snug group-hover:text-emerald-600 transition-colors">
+                Perplexity AI 获 SoftBank $5 亿战略投资，加速布局亚太搜索市场
+              </h4>
+              <p class="text-sm text-gray-500 line-clamp-2">此轮融资后 Perplexity 估值升至 $80 亿，将在东京和新加坡设立研发中心，并与软银旗下运营商联合推出本地化 AI 搜索套餐。</p>
+              <div class="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
+                <p class="text-xs font-medium text-gray-700">
+                  <span class="font-bold text-emerald-600 uppercase mr-2">投资信号:</span>
+                  AI 搜索替代传统搜索的窗口期正在打开，谷歌亚太广告收入存在结构性下行风险。
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         TWO COLUMN LAYOUT (DEALS + TOPICS)
+    ═══════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+      <!-- ═══════════════════════════════════════════
+           MODULE 5 · DEALS
+      ═══════════════════════════════════════════ -->
+      <section class="lg:col-span-3 bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-black/5 bg-gray-50/50 flex items-center justify-between">
+          <h3 class="font-bold flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-500"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            核心交易
+          </h3>
+          <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">今日融资</span>
+        </div>
+        <div class="p-5 space-y-3">
+
+          <!-- Deal 1 -->
+          <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-black/5 cursor-pointer">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-bold text-sm">Mistral AI</span>
+                <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded uppercase">Series B</span>
+              </div>
+              <p class="text-xs text-gray-500 truncate w-52">开源大模型 · 欧洲企业级 AI</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-sm text-emerald-600">$600M</p>
+              <p class="text-[10px] text-gray-400">估值 $6B</p>
+            </div>
+          </div>
+
+          <!-- Deal 2 -->
+          <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-black/5 cursor-pointer">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-bold text-sm">Perplexity AI</span>
+                <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase">Strategic</span>
+              </div>
+              <p class="text-xs text-gray-500 truncate w-52">AI 搜索 · 亚太市场扩张</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-sm text-emerald-600">$500M</p>
+              <p class="text-[10px] text-gray-400">估值 $8B</p>
+            </div>
+          </div>
+
+          <!-- Deal 3 -->
+          <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-black/5 cursor-pointer">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-bold text-sm">Harvey AI</span>
+                <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded uppercase">Series C</span>
+              </div>
+              <p class="text-xs text-gray-500 truncate w-52">法律 AI · 企业合规自动化</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-sm text-emerald-600">$300M</p>
+              <p class="text-[10px] text-gray-400">估值 $3B</p>
+            </div>
+          </div>
+
+          <!-- Deal 4 -->
+          <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-black/5 cursor-pointer">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-bold text-sm">Cohere</span>
+                <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">Series D</span>
+              </div>
+              <p class="text-xs text-gray-500 truncate w-52">企业 RAG · 私有化部署 LLM</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-sm text-emerald-600">$220M</p>
+              <p class="text-[10px] text-gray-400">估值 $2.2B</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           MODULE 6 · TOPICS
+      ═══════════════════════════════════════════ -->
+      <section class="lg:col-span-2 bg-white rounded-3xl border border-black/5 shadow-sm p-5 space-y-4">
+        <h3 class="font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-700"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          热点拉花
+        </h3>
+        <div class="grid grid-cols-2 gap-3">
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-rose-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#Gemini2Ultra</span>
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">发布后 6 小时讨论量破 120 万</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#AI合规</span>
+              <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">欧盟 AI 法案催生新赛道</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-rose-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#LLaMA4</span>
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">开源社区 48h 内破万 Star</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#AI搜索</span>
+              <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">Perplexity 亚太战略引关注</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-rose-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#MoE架构</span>
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">MIT 推理加速论文刷爆 X</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#边缘推理</span>
+              <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">本地 AI 部署需求快速增长</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-rose-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#ChatGPT企业</span>
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">Projects 2.0 引爆协作讨论</p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-xs">#法律AI</span>
+              <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
+            </div>
+            <p class="text-[10px] text-gray-500 leading-tight">Harvey 完成 C 轮融资</p>
+          </div>
+
+        </div>
+
+        <!-- Signal Legend -->
+        <div class="pt-2 border-t border-black/5 flex items-center gap-4 text-[9px] text-gray-400 font-medium">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>高热度</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>快速上升</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         BONUS: UPCOMING CALENDAR
+    ═══════════════════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
+      <h3 class="font-bold flex items-center gap-2 mb-4">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-500"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        即将到来
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-12 text-center">
+            <p class="text-[10px] font-bold text-gray-400 uppercase">MAR</p>
+            <p class="text-2xl font-bold leading-none">10</p>
+          </div>
+          <div class="flex-1 pb-4 border-b border-black/5">
+            <p class="text-sm font-bold">Google I/O 2026 开发者大会</p>
+            <p class="text-xs text-gray-500">全球活动 · 线上直播</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-12 text-center">
+            <p class="text-[10px] font-bold text-gray-400 uppercase">MAR</p>
+            <p class="text-2xl font-bold leading-none">14</p>
+          </div>
+          <div class="flex-1 pb-4 border-b border-black/5">
+            <p class="text-sm font-bold">Microsoft Build AI Track</p>
+            <p class="text-xs text-gray-500">全球活动 · 线上直播</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-12 text-center">
+            <p class="text-[10px] font-bold text-gray-400 uppercase">MAR</p>
+            <p class="text-2xl font-bold leading-none">20</p>
+          </div>
+          <div class="flex-1 pb-4 border-b border-black/5">
+            <p class="text-sm font-bold">AI Safety Summit · Seoul</p>
+            <p class="text-xs text-gray-500">全球活动 · 线下 + 线上</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         MODULE · PEER STORY
+    ═══════════════════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-black/5 bg-indigo-50/30 flex items-center justify-between">
+        <h3 class="font-bold flex items-center gap-2 text-indigo-900">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-500"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a1 1 0 1 1-1 1 1 1 0 0 1 1-1zm2 13H10v-1l2-7-2-1v-1h4v1l-2 7 2 1z"/></svg>
+          同龄人故事
+        </h3>
+        <span class="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">本周故事</span>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">李</div>
+          <div>
+            <p class="font-bold text-sm">李明远</p>
+            <p class="text-xs text-gray-500">清华大学 · 大三在读</p>
+          </div>
+        </div>
+        <h4 class="font-bold text-base leading-snug">用 AI 工具在寒假两个月做出 $3,000 月收入</h4>
+        <p class="text-sm text-gray-600 leading-relaxed">大三上学期末，我用 Cursor + Claude 搭建了一个面向海外华人的 AI 简历优化工具，通过 Twitter 和小红书引流，两个月内积累了 200 付费用户，月收入稳定在 $3,000 左右。最大的收获不是钱，而是学会了如何快速验证一个想法。</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-emerald-50 rounded-2xl p-3">
+            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">月收入</p>
+            <p class="text-sm font-bold text-emerald-800">$3,000 / 月</p>
+          </div>
+          <div class="bg-indigo-50 rounded-2xl p-3">
+            <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider mb-1">你能学到的</p>
+            <p class="text-xs text-indigo-800 leading-snug">用 AI 工具快速构建 MVP，冷启动比技术更重要</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MODULE · SIDE HUSTLE
+    ═══════════════════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-black/5 bg-amber-50/30 flex items-center justify-between">
+        <h3 class="font-bold flex items-center gap-2 text-amber-900">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-500"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          低成本副业配方
+        </h3>
+        <span class="text-[10px] font-bold bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">低门槛起步</span>
+      </div>
+      <div class="divide-y divide-black/5">
+
+        <div class="p-5 hover:bg-amber-50/20 transition-colors">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <h4 class="font-bold text-sm leading-snug">AI 提示词包订阅</h4>
+            <span class="flex-shrink-0 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">$500–$2k/月</span>
+          </div>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">为特定行业（如法律、医疗、教育）整理高质量提示词包，通过 Gumroad 或爱发电销售订阅。</p>
+          <div class="space-y-1">
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>选定一个垂直行业，调研核心痛点</span></div>
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>制作 20–50 条高质量提示词并测试效果</span></div>
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>在行业社群中免费分享 5 条引流，转化付费订阅</span></div>
+          </div>
+        </div>
+
+        <div class="p-5 hover:bg-amber-50/20 transition-colors">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <h4 class="font-bold text-sm leading-snug">AI 工具教程频道</h4>
+            <span class="flex-shrink-0 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">$800–$3k/月</span>
+          </div>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">专注某类 AI 工具的实战教程，在 B 站或 YouTube 积累粉丝，接品牌合作或开付费课程。</p>
+          <div class="space-y-1">
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>选一个你熟练的 AI 工具作为主题</span></div>
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>用手机录制屏幕 + 简单剪辑，持续更新</span></div>
+            <div class="flex items-start gap-2 text-xs text-gray-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500 flex-shrink-0 mt-0.5"><polyline points="9 18 15 12 9 6"/></svg><span>粉丝到 1k 后主动联系相关品牌合作</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MODULE · SOLO ENTREPRENEUR
+    ═══════════════════════════════════════════ -->
+    <section class="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-black/5 bg-rose-50/30 flex items-center justify-between">
+        <h3 class="font-bold flex items-center gap-2 text-rose-900">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-rose-500"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5c-1.51 0-2.816.917-3.437 2.25-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484z"/></svg>
+          独立创造者雷达
+        </h3>
+        <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">独立开发者</span>
+      </div>
+      <div class="divide-y divide-black/5">
+
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="p-5 flex gap-4 hover:bg-rose-50/20 transition-colors group block">
+          <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm flex-shrink-0">张</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="font-bold text-sm">张晨光</p>
+                <p class="text-xs text-gray-500">独立开发者 / 前字节工程师</p>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 group-hover:text-rose-500 transition-colors flex-shrink-0 mt-1"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-snug">开发了面向个人创作者的 AI 写作助手 WriteFlow，已有 1,200 付费用户</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs font-bold text-emerald-600">$4,200/月</span>
+              <div class="flex gap-1">
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">Next.js</span>
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">OpenAI</span>
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">Stripe</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 italic mt-2 leading-snug">"找到一个足够痛的问题，比技术栈更重要。"</p>
+          </div>
+        </a>
+
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="p-5 flex gap-4 hover:bg-rose-50/20 transition-colors group block">
+          <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm flex-shrink-0">陈</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="font-bold text-sm">陈晓彤</p>
+                <p class="text-xs text-gray-500">设计师转独立开发者</p>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 group-hover:text-rose-500 transition-colors flex-shrink-0 mt-1"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-snug">用 Framer + AI 为中小品牌提供快速建站服务，月均完成 6–8 个项目</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs font-bold text-emerald-600">$6,000/月</span>
+              <div class="flex gap-1">
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">Framer</span>
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">Figma</span>
+                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">Claude</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 italic mt-2 leading-snug">"设计眼光 + AI 提速，是我的核心竞争力。"</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       MODULE 7 · FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer class="max-w-5xl mx-auto px-4 py-12 border-t border-black/5 mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center text-white font-bold text-base">☕</div>
+          <h1 class="text-lg font-semibold tracking-tight">第一杯</h1>
+        </div>
+        <p class="text-sm text-gray-500 leading-relaxed">
+          为下一代建设者和支持者提供的高保真情报。
+        </p>
+        <p class="text-xs text-gray-400 italic leading-relaxed">
+          本页数据仅供参考，不构成投资建议。
+        </p>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-sm mb-4">产品</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/" class="hover:text-black transition-colors">每日简报</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">市场信号</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">成长配方</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-sm mb-4">公司</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="#" class="hover:text-black transition-colors">关于我们</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">联系方式</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">隐私政策</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-sm mb-4">订阅</h4>
+        <div class="flex gap-2">
+          <input type="email" placeholder="Email" class="bg-black/5 border-0 rounded-xl px-4 py-2 text-sm flex-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+          <button class="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors">加入</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-8 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400 mt-8">
+      <p>© 2026 第一杯 Intelligence. 版权所有。本快照为第 47 期。</p>
+      <div class="flex items-center gap-6">
+        <a href="#" class="hover:text-black transition-colors">Twitter</a>
+        <a href="#" class="hover:text-black transition-colors">LinkedIn</a>
+        <a href="#" class="hover:text-black transition-colors">Discord</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════
+       QR CODE GENERATION (qrcode.js CDN)
+  ═══════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script>
+    (function () {
+      var canvas = document.getElementById('qr-canvas');
+      if (!canvas || typeof QRCode === 'undefined') return;
+      QRCode.toCanvas(canvas, 'https://your-domain.vercel.app/snap.html', {
+        width: 56,
+        margin: 1,
+        color: { dark: '#1A1A1A', light: '#FFFFFF' }
+      }, function (err) {
+        if (err) console.warn('QR generation failed:', err);
+      });
+    })();
+  </script>
+
+</body>
+</html>

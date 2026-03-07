@@ -3,6 +3,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/snap.html", "destination": "/snap.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
