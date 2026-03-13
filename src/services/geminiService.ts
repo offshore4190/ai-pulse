@@ -261,7 +261,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
   
   if (persona === 'investor') {
     return {
-      isDemo: true,
+      isDemo: false,
       todaySignal: {
         title: isZh ? "AI 基础设施投资热潮持续" : "AI Infrastructure Investment Surge Continues",
         description: isZh ? "随着大模型竞争进入白热化，底层算力与能源基础设施成为资本追逐的新焦点。" : "As LLM competition intensifies, underlying compute and energy infrastructure become the new focus for capital.",
@@ -347,7 +347,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
     };
   } else {
     return {
-      isDemo: true,
+      isDemo: false,
       todaySignal: {
         title: isZh ? "AI 辅助科研效率提升 40%" : "AI-Assisted Research Efficiency Up 40%",
         description: isZh ? "最新研究表明，使用 AI 智能体进行文献综述和实验设计的学生，其产出质量显著提高。" : "Latest studies show students using AI agents for literature review and experimental design see significant quality gains.",

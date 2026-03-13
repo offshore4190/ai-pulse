@@ -287,7 +287,43 @@ function CampusVoice({ t }: { t: any, language: Language }) {
   );
 }
 
+function useAutoScroll(ref: React.RefObject<HTMLDivElement>, interval = 3000) {
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const container = ref.current;
+    if (!container) return;
+
+    const scroll = () => {
+      if (isPaused) return;
+      
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      // Check if we are near the end
+      if (scrollLeft + clientWidth >= scrollWidth - 50) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // Scroll by roughly one card width (assuming ~300px + gap)
+        // Or just scroll by a chunk
+        container.scrollBy({ left: 320, behavior: 'smooth' }); 
+      }
+    };
+
+    const timer = setInterval(scroll, interval);
+    return () => clearInterval(timer);
+  }, [isPaused, interval]);
+
+  return {
+    onMouseEnter: () => setIsPaused(true),
+    onMouseLeave: () => setIsPaused(false),
+    onTouchStart: () => setIsPaused(true),
+    onTouchEnd: () => setIsPaused(false),
+  };
+}
+
 function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollHandlers = useAutoScroll(scrollRef);
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
@@ -299,14 +335,19 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
           {t.lowCostStart}
         </span>
       </div>
-      <div className="space-y-4">
+      <div 
+        ref={scrollRef}
+        {...scrollHandlers}
+        className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-2 scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {sideHustles.map((hustle, idx) => (
           <motion.div 
             key={hustle.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+            className="min-w-[85%] md:min-w-[350px] snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4 flex-shrink-0"
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
@@ -399,6 +440,9 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
 }
 
 function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: any[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollHandlers = useAutoScroll(scrollRef, 3500); // Slightly different interval for variety
+
   if (!entrepreneurs || entrepreneurs.length === 0) return null;
   return (
     <section className="space-y-4">
@@ -411,14 +455,19 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
           {t.indieMaker}
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-4">
+      <div 
+        ref={scrollRef}
+        {...scrollHandlers}
+        className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-2 scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {entrepreneurs.map((person, idx) => (
           <motion.div 
             key={person.id}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+            className="min-w-[85%] md:min-w-[300px] snap-center bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4 flex-shrink-0"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -536,12 +585,6 @@ export default function App() {
               <h1 className="text-base font-bold tracking-tight">Daily Shot.</h1>
               <span className="text-[10px] text-gray-400 font-medium tracking-wide">今天AI在干嘛</span>
             </div>
-            {data?.isDemo && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-md border border-yellow-200 ml-2 animate-pulse">
-                <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">{t.demoMode}</span>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -575,7 +618,7 @@ export default function App() {
             <div className="hidden md:flex flex-col items-end leading-tight">
               <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">出炉时间</span>
               <span className="text-[11px] font-bold text-gray-600 tabular-nums">
-                {new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '-')}
+                {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') + ' 06:00'}
               </span>
             </div>
             <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
@@ -811,27 +854,6 @@ export default function App() {
           )}
         </div>
 
-        {data?.isDemo && !error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4"
-          >
-            <div className="flex items-center gap-3 text-amber-800">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <AlertCircle size={20} />
-              </div>
-              <p className="text-sm font-medium">{t.demoNotice}</p>
-            </div>
-            <button 
-              onClick={handleSwitchKey}
-              className="text-xs font-bold bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2"
-            >
-              <Settings size={14} />
-              {t.switchKey}
-            </button>
-          </motion.div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: News & Signals */}
