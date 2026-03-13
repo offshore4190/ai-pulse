@@ -2,13 +2,12 @@ import { motion } from 'motion/react';
 import { useMemo } from 'react';
 
 const DynamicBackground = () => {
-  // 南法配色方案
   const colors = [
-    '#E6E6FA', // 薰衣草紫
-    '#F4D03F', // 向日葵黄
-    '#A8C686', // 橄榄绿
-    '#E6B0AA', // 陶土红
-    '#AED6F1', // 蔚蓝海岸蓝
+    '#4ECDC4', // 青色（主）
+    '#F4D03F', // 亮黄（副）
+    '#B2EBE0', // 浅青
+    '#FFF3CD', // 浅黄
+    '#80DEEA', // 天蓝青
   ];
 
   // 生成随机动画参数，使用 useMemo 避免重渲染时抖动
@@ -23,7 +22,7 @@ const DynamicBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 w-full h-full overflow-hidden -z-10 bg-[#FDFBF7] pointer-events-none">
+    <div className="fixed inset-0 w-full h-full overflow-hidden -z-10 bg-[#FAFAF9] pointer-events-none">
       {/* 装饰性模糊圆球 */}
       
       {/* 1. 左上角 - 薰衣草紫 */}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   TrendingUp, 
@@ -102,8 +102,8 @@ const translations = {
     indieMaker: 'Indie Maker'
   },
   zh: {
-    investor: '投资人',
-    student: '大学生',
+    investor: '投资�?,
+    student: '大学�?,
     todaySignal: '重磅热咖',
     readAnalysis: '阅读深度分析',
     intelligenceStream: '投研黑咖',
@@ -116,12 +116,12 @@ const translations = {
     interpretation: '深度解读',
     signal: '投资信号',
     action: '行动建议',
-    footerDesc: '为下一代建设者和支持者提供的高保真情报。',
+    footerDesc: '为下一代建设者和支持者提供的高保真情报�?,
     product: '产品',
     company: '公司',
     subscribe: '订阅',
     join: '加入',
-    rights: '版权所有。',
+    rights: '版权所有�?,
     live: '实时',
     resource: '资源',
     minRead: '分钟阅读',
@@ -138,32 +138,32 @@ const translations = {
     business: '商科',
     futureTrend: '未来趋势',
     errorTitle: '投研黑咖暂时中断',
-    errorDesc: '当前 API 配额已耗尽。请稍候重试，或切换至您的付费 API 密钥以获得不间断服务。',
+    errorDesc: '当前 API 配额已耗尽。请稍候重试，或切换至您的付费 API 密钥以获得不间断服务�?,
     retry: '重试连接',
-    switchKey: '切换至付费 API 密钥',
+    switchKey: '切换至付�?API 密钥',
     demoMode: '演示模式',
-    demoNotice: '由于配额限制，实时流已暂停。正在显示示例数据。',
+    demoNotice: '由于配额限制，实时流已暂停。正在显示示例数据�?,
     papers: '前沿学术研究',
     majorNews: '专业细分时讯',
     forums: '可交流的论坛',
-    backToDashboard: '返回仪表盘',
+    backToDashboard: '返回仪表�?,
     deepDiveTitle: '专业特调 深度探索',
     viewPost: '查看原文',
     campusVoice: '不装了，我也在用AI',
-    campusVoiceDesc: '与同学分享你的 AI 见解。',
-    sharePlaceholder: '今天你发现了什么 AI 突破？',
+    campusVoiceDesc: '与同学分享你�?AI 见解�?,
+    sharePlaceholder: '今天你发现了什�?AI 突破�?,
     post: '发布',
     anonymous: '匿名用户',
-    complianceNotice: '请保持友善。内容将经过审核以确保社区安全。',
+    complianceNotice: '请保持友善。内容将经过审核以确保社区安全�?,
     sideHustleTitle: '本周副业冰萃',
-    lowCostStart: '低成本启动',
+    lowCostStart: '低成本启�?,
     peerStoryTitle: '全球同咖',
     weeklyStory: '本周故事',
-    whatYouCanLearn: '你可以学到',
+    whatYouCanLearn: '你可以学�?,
     income: '收入',
     funding: '融了',
-    soloEntrepreneurTitle: '独立创咖 / 青年创业者',
-    indieMaker: '独立开发者'
+    soloEntrepreneurTitle: '独立创咖 / 青年创业�?,
+    indieMaker: '独立开发�?
   }
 };
 
@@ -191,7 +191,7 @@ function CampusVoice({ t }: { t: any, language: Language }) {
         }
       }
     } catch {
-      // silent fail — network blip
+      // silent fail �?network blip
     }
   };
 
@@ -238,8 +238,8 @@ function CampusVoice({ t }: { t: any, language: Language }) {
           {t.campusVoice}
         </h3>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{t.live}</span>
+          <div className="w-2 h-2 rounded-full bg-[#4ECDC4] animate-pulse" />
+          <span className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">{t.live}</span>
         </div>
       </div>
       
@@ -279,7 +279,7 @@ function CampusVoice({ t }: { t: any, language: Language }) {
           </button>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium italic">
-          <ShieldCheck size={12} className="text-emerald-500" />
+          <ShieldCheck size={12} className="text-teal-500" />
           {t.complianceNotice}
         </div>
       </div>
@@ -315,7 +315,7 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
                 </div>
                 <h4 className="font-bold text-lg">{hustle.title}</h4>
               </div>
-              <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
+              <span className="text-sm font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-lg">
                 {hustle.income}
               </span>
             </div>
@@ -368,11 +368,11 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
             <div>
               <h4 className="font-bold text-lg">{story.author.name}</h4>
               <p className="text-xs text-gray-500 font-medium">
-                {story.author.school} • {story.author.status}
+                {story.author.school} �?{story.author.status}
               </p>
             </div>
           </div>
-          <div className="bg-emerald-50 text-emerald-600 text-xs font-bold px-3 py-1 rounded-lg">
+          <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1 rounded-lg">
             {story.funding}
           </div>
         </div>
@@ -525,19 +525,20 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen text-[#1A1A1A] font-sans selection:bg-emerald-100 relative`}>
+    <div className={`min-h-screen text-[#1A1A1A] font-sans selection:bg-teal-100 relative`}>
       <DynamicBackground />
       {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-bottom border-black/5 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center text-white font-bold text-base">
-              ☕
+            <img src="/logo.png" className="w-9 h-9 object-contain" alt="Daily Shot Logo" />
+            <div className="flex flex-col leading-tight">
+              <h1 className="text-base font-bold tracking-tight">Daily Shot.</h1>
+              <span className="text-[10px] text-gray-400 font-medium tracking-wide">今天AI在干嘛</span>
             </div>
-            <h1 className="text-lg font-semibold tracking-tight">第一杯</h1>
             {data?.isDemo && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 ml-2 animate-pulse">
-                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-md border border-yellow-200 ml-2 animate-pulse">
+                <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">{t.demoMode}</span>
               </div>
             )}
@@ -580,7 +581,7 @@ export default function App() {
             <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
               <Search size={20} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold">
               JD
             </div>
           </div>
@@ -617,14 +618,14 @@ export default function App() {
                 {/* Papers Module */}
                 <div className="lg:col-span-2 space-y-6">
                   <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-black/5 flex items-center justify-between bg-emerald-50/30">
+                    <div className="p-6 border-b border-black/5 flex items-center justify-between bg-teal-50/30">
                       <h3 className="text-xl font-bold flex items-center gap-2">
-                        <BookOpen className="text-emerald-600" size={22} />
+                        <BookOpen className="text-teal-600" size={22} />
                         {t.papers}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-emerald-600/50 uppercase tracking-widest">Verified Sources</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] font-bold text-teal-600/50 uppercase tracking-widest">Verified Sources</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] animate-pulse" />
                       </div>
                     </div>
                     <div className="divide-y divide-black/5">
@@ -634,25 +635,25 @@ export default function App() {
                           href={paper.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-6 block hover:bg-emerald-50/10 transition-all group"
+                          className="p-6 block hover:bg-teal-50/10 transition-all group"
                         >
                           <div className="flex justify-between items-start gap-6">
                             <div className="space-y-3">
-                              <h4 className="font-bold text-xl group-hover:text-emerald-600 transition-colors leading-tight">
+                              <h4 className="font-bold text-xl group-hover:text-teal-600 transition-colors leading-tight">
                                 {paper.title}
                               </h4>
                               <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
                                 {paper.context}
                               </p>
                               <div className="flex items-center gap-4 text-xs">
-                                <span className="font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md">{paper.source}</span>
+                                <span className="font-bold px-2 py-1 bg-teal-100 text-teal-700 rounded-md">{paper.source}</span>
                                 <span className="text-gray-400 font-medium">{paper.timestamp}</span>
-                                <span className="text-emerald-600 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-teal-600 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                   Read Full Paper <ChevronRight size={12} />
                                 </span>
                               </div>
                             </div>
-                            <div className="p-3 rounded-2xl bg-gray-50 group-hover:bg-emerald-100 text-gray-400 group-hover:text-emerald-600 transition-all flex-shrink-0">
+                            <div className="p-3 rounded-2xl bg-gray-50 group-hover:bg-teal-100 text-gray-400 group-hover:text-teal-600 transition-all flex-shrink-0">
                               <ExternalLink size={20} />
                             </div>
                           </div>
@@ -799,7 +800,7 @@ export default function App() {
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold font-mono">{metric.value}</span>
                   {metric.change && (
-                    <span className={`text-[11px] font-medium flex items-center ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <span className={`text-[11px] font-medium flex items-center ${metric.isPositive ? 'text-teal-600' : 'text-rose-600'}`}>
                       {metric.isPositive ? <TrendingUp size={10} className="mr-0.5" /> : <TrendingDown size={10} className="mr-0.5" />}
                       {metric.change}
                     </span>
@@ -837,9 +838,9 @@ export default function App() {
           <div className="lg:col-span-8 space-y-6">
             {/* Heavy Hitter (Hero) */}
             <section className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
               <div className="relative z-10 space-y-4">
-                <div className="flex items-center gap-2 text-emerald-400">
+                <div className="flex items-center gap-2 text-teal-400">
                   <Zap size={16} fill="currentColor" />
                   <span className="text-xs font-bold uppercase tracking-[0.2em]">{t.todaySignal}</span>
                 </div>
@@ -859,7 +860,7 @@ export default function App() {
                     </p>
                     <div className="pt-4 flex flex-col md:flex-row gap-4">
                       <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
-                        <p className="text-[10px] uppercase font-bold text-emerald-400 mb-2">
+                        <p className="text-[10px] uppercase font-bold text-teal-400 mb-2">
                           {persona === 'investor' ? t.signal : t.action}
                         </p>
                         <p className="text-sm italic leading-relaxed">
@@ -868,7 +869,7 @@ export default function App() {
                       </div>
                       <button 
                         onClick={() => window.open(data?.todaySignal.url, '_blank')}
-                        className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center"
+                        className="bg-teal-500 hover:bg-teal-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center"
                       >
                         {t.readAnalysis}
                         <ChevronRight size={18} />
@@ -912,14 +913,14 @@ export default function App() {
                     >
                       <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl -mr-12 -mt-12 opacity-20 transition-opacity group-hover:opacity-40 ${
                         insight.discipline === 'humanities' ? 'bg-indigo-500' :
-                        insight.discipline === 'science' ? 'bg-emerald-500' :
+                        insight.discipline === 'science' ? 'bg-[#4ECDC4]' :
                         insight.discipline === 'engineering' ? 'bg-amber-500' : 'bg-rose-500'
                       }`} />
                       
                       <div className="flex items-center gap-3 mb-4">
                         <div className={`p-2 rounded-xl ${
                           insight.discipline === 'humanities' ? 'bg-indigo-50 text-indigo-600' :
-                          insight.discipline === 'science' ? 'bg-emerald-50 text-emerald-600' :
+                          insight.discipline === 'science' ? 'bg-teal-50 text-teal-600' :
                           insight.discipline === 'engineering' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
                         }`}>
                           {insight.discipline === 'humanities' && <BookOpen size={20} />}
@@ -932,7 +933,7 @@ export default function App() {
                         </span>
                       </div>
                       
-                      <h4 className="text-lg font-bold mb-2 group-hover:text-emerald-600 transition-colors">{insight.title}</h4>
+                      <h4 className="text-lg font-bold mb-2 group-hover:text-teal-600 transition-colors">{insight.title}</h4>
                       <p className="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-3">{insight.content}</p>
                       
                       <div className="pt-4 border-t border-black/5">
@@ -1038,7 +1039,7 @@ export default function App() {
                       className="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block"
                     >
                       <div className="flex gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                        <div className="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
                           {item.type === 'product' && <Cpu size={24} />}
                           {item.type === 'funding' && <Briefcase size={24} />}
                           {item.type === 'research' && <GraduationCap size={24} />}
@@ -1047,17 +1048,17 @@ export default function App() {
                         </div>
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} • {item.timestamp}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} �?{item.timestamp}</span>
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Bookmark size={14} /></button>
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Share2 size={14} /></button>
                             </div>
                           </div>
-                          <h4 className="text-lg font-bold leading-snug group-hover:text-emerald-600 transition-colors">{item.title}</h4>
+                          <h4 className="text-lg font-bold leading-snug group-hover:text-teal-600 transition-colors">{item.title}</h4>
                           <p className="text-sm text-gray-500 line-clamp-2">{item.context}</p>
-                          <div className="bg-gray-50 p-3 rounded-xl border-l-2 border-emerald-500">
+                          <div className="bg-gray-50 p-3 rounded-xl border-l-2 border-teal-500">
                             <p className="text-xs font-medium text-gray-700">
-                              <span className="font-bold text-emerald-600 uppercase mr-2">
+                              <span className="font-bold text-teal-600 uppercase mr-2">
                                 {persona === 'investor' ? t.signal : t.action}:
                               </span>
                               {item.takeaway}
@@ -1129,7 +1130,7 @@ export default function App() {
                               <span className="text-gray-400 text-xs">{signal.author.handle}</span>
                             </div>
                             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tight">
-                              {signal.author.role} • {signal.author.followers}
+                              {signal.author.role} �?{signal.author.followers}
                             </p>
                           </div>
                         </div>
@@ -1172,7 +1173,7 @@ export default function App() {
               <div className="p-5 border-b border-black/5 bg-gray-50/50">
                 <h3 className="font-bold flex items-center gap-2">
                   {persona === 'investor' ? (
-                    <><Briefcase size={18} className="text-emerald-500" /> {t.keyDeals}</>
+                    <><Briefcase size={18} className="text-teal-500" /> {t.keyDeals}</>
                   ) : (
                     <><GraduationCap size={18} className="text-indigo-500" /> {t.learningPath}</>
                   )}
@@ -1196,7 +1197,7 @@ export default function App() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-sm">{deal.company}</span>
-                            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded uppercase">{deal.stage}</span>
+                            <span className="text-[10px] font-bold bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded uppercase">{deal.stage}</span>
                           </div>
                           <p className="text-xs text-gray-500 truncate w-40">{deal.description}</p>
                         </div>
@@ -1220,7 +1221,7 @@ export default function App() {
                         </div>
                         <div>
                           <p className="font-bold text-sm line-clamp-1">{item.title}</p>
-                          <p className="text-xs text-gray-500">{t.resource} • 5 {t.minRead}</p>
+                          <p className="text-xs text-gray-500">{t.resource} �?5 {t.minRead}</p>
                         </div>
                         <ExternalLink size={14} className="ml-auto text-gray-300" />
                       </a>
@@ -1280,7 +1281,7 @@ export default function App() {
                       </div>
                       <div className="flex-1 pb-4 border-b border-black/5 last:border-0">
                         <p className="text-sm font-bold">{item.event}</p>
-                        <p className="text-xs text-gray-500">{t.globalEvent} • {t.virtual}</p>
+                        <p className="text-xs text-gray-500">{t.globalEvent} �?{t.virtual}</p>
                       </div>
                     </div>
                   ))
@@ -1299,10 +1300,11 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold italic">
-                AI
+              <img src="/logo.png" className="w-9 h-9 object-contain" alt="Daily Shot Logo" />
+              <div className="flex flex-col leading-tight">
+                <h1 className="text-base font-bold tracking-tight">Daily Shot.</h1>
+                <span className="text-[10px] text-gray-500 font-medium tracking-wide">今天AI在干嘛</span>
               </div>
-              <h1 className="text-lg font-semibold tracking-tight">Shot</h1>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
               {t.footerDesc}
@@ -1327,13 +1329,13 @@ export default function App() {
           <div>
             <h4 className="font-bold text-sm mb-4">{t.subscribe}</h4>
             <div className="flex gap-2">
-              <input type="email" placeholder="Email" className="bg-black/5 border-0 rounded-xl px-4 py-2 text-sm flex-1 focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <input type="email" placeholder="Email" className="bg-black/5 border-0 rounded-xl px-4 py-2 text-sm flex-1 focus:ring-2 focus:ring-teal-500 outline-none" />
               <button className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold">{t.join}</button>
             </div>
           </div>
         </div>
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© 2026 第一杯 Intelligence. {t.rights}</p>
+          <p>© 2026 Daily Shot. {t.rights}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-black">Twitter</a>
             <a href="#" className="hover:text-black">LinkedIn</a>
