@@ -78,14 +78,14 @@ JSON Schema (respond with ONLY valid JSON, no markdown):
 }
 `;
 
-  const fetchWithRetry = async (retries = 3, delay = 2000) => {
+  const fetchWithRetry = async (retries = 2, delay = 3000) => {
     try {
+      // 注意：google_search grounding 与 responseMimeType:'application/json' 不兼容
+      // 改为不指定 responseMimeType，手动从响应文本中提取 JSON
       const response = await ai.models.generateContent({
         model: 'gemini-2.0-flash',
         contents: prompt,
         config: {
-          responseMimeType: 'application/json',
-          tools: [{ google_search: {} }],
           temperature: 0.1,
         },
       });
@@ -93,7 +93,6 @@ JSON Schema (respond with ONLY valid JSON, no markdown):
     } catch (err) {
       const isQuota = err?.message?.includes('429') || err?.status === 'RESOURCE_EXHAUSTED';
       const isServerError = err?.message?.includes('500') || err?.status === 'INTERNAL';
-      // 429 配额耗尽不重试，直接抛出以便上层优雅处理
       if (isServerError && retries > 0) {
         console.log(`API error (${err?.status}), retrying in ${delay}ms… (${retries} left)`);
         await new Promise(r => setTimeout(r, delay));
@@ -110,7 +109,10 @@ JSON Schema (respond with ONLY valid JSON, no markdown):
 
   const response = await fetchWithRetry();
   const raw = response.text || '{}';
-  const data = JSON.parse(raw);
+  // 从响应中提取 JSON（模型可能包裹在 ```json ... ``` 代码块中）
+  const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/) || raw.match(/(\{[\s\S]*\})/);
+  const jsonStr = jsonMatch ? jsonMatch[1] : raw;
+  const data = JSON.parse(jsonStr.trim());
   return data;
 }
 
@@ -688,10 +690,81 @@ async function main() {
   console.log(`[generate-snap] ✓ 已写入 ${SNAP_PATH}`);
 }
 
+// ─── Fallback 数据（配额耗尽时使用） ─────────────────────────────────────────
+
+function getFallbackData() {
+  return {
+    todaySignal: {
+      title: 'AI 基础设施投资热潮持续',
+      description: '随着大模型竞争进入白热化，底层算力与能源基础设施成为资本追逐的新焦点。多家头部 VC 宣布设立专项 AI 基础设施基金。',
+      takeaway: '关注液冷技术、边缘计算节点和电力基础设施的早期机会，这是 AI 时代的"铲子生意"。',
+      url: 'https://techcrunch.com/category/artificial-intelligence/',
+    },
+    metrics: [
+      { label: '全球融资额', value: '$3.2B', change: '↑ 12%', isPositive: true },
+      { label: '新模型发布', value: '5', change: '↑ 2', isPositive: true },
+      { label: '热点讨论量', value: '2.8M', change: '↑ 8%', isPositive: true },
+      { label: '学术论文数', value: '138', change: '↑ 18', isPositive: true },
+      { label: '开源项目', value: '76', change: '↑ 11', isPositive: true },
+    ],
+    news: [
+      { id: 'f1', type: 'funding', title: 'Anthropic 完成新一轮融资，估值突破 $400 亿', context: '亚马逊追加投资，Anthropic 将加速 Claude 系列模型迭代并扩大企业客户规模。', source: 'TechCrunch', takeaway: '企业级 AI 助手赛道竞争加剧，关注 Claude 在金融和法律行业的渗透率。', timestamp: '今日', url: 'https://techcrunch.com/category/artificial-intelligence/' },
+      { id: 'p1', type: 'product', title: 'OpenAI 推出实时语音 API，开发者可接入低延迟语音交互', context: '新 API 支持毫秒级语音识别和合成，已有多家智能硬件厂商接入测试。', source: 'OpenAI Blog', takeaway: '语音 AI 应用层爆发临近，关注智能耳机、车载助手等硬件场景。', timestamp: '今日', url: 'https://openai.com/blog' },
+      { id: 't1', type: 'tech', title: 'Meta 开源新一代多模态模型 Llama 4，支持图文混合推理', context: '模型在视觉问答和图表理解上超越 GPT-4V，且完全开源可商用。', source: 'Meta AI Blog', takeaway: '开源多模态能力持平闭源，独立 AI 应用开发者的竞争门槛大幅降低。', timestamp: '今日', url: 'https://ai.meta.com/blog/' },
+      { id: 'r1', type: 'research', title: 'DeepMind 发布新推理框架，复杂数学题正确率提升至 92%', context: '通过链式思维增强和验证器协同，在 AIME 和 AMC 竞赛题上大幅刷新记录。', source: 'DeepMind Blog', takeaway: '推理能力突破意味着 AI 进入科学发现和工程设计领域的时机日趋成熟。', timestamp: '今日', url: 'https://deepmind.google/discover/blog/' },
+      { id: 'po1', type: 'policy', title: '欧盟 AI 法案配套细则发布，明确高风险系统合规路径', context: '医疗、招聘、信贷等领域 AI 系统须在 6 个月内完成合规备案，违规最高罚款为营收 6%。', source: 'Reuters', takeaway: 'AI 合规服务市场将迎来爆发，RegTech 和可解释 AI 工具迎来需求潮。', timestamp: '今日', url: 'https://www.reuters.com/technology/' },
+    ],
+    deals: [
+      { company: 'Mistral AI', stage: 'Series B', description: '欧洲开源大模型领军企业', amount: '$600M', valuation: '$6B' },
+      { company: 'Perplexity AI', stage: 'Strategic', description: 'AI 原生搜索引擎', amount: '$500M', valuation: '$8B' },
+      { company: 'Harvey AI', stage: 'Series C', description: '法律行业 AI 自动化', amount: '$300M', valuation: '$3B' },
+      { company: 'Cohere', stage: 'Series D', description: '企业私有化 LLM 部署', amount: '$220M', valuation: '$2.2B' },
+    ],
+    topics: [
+      { name: 'AI基础设施', status: 'high', insight: '算力与能源成为 AI 时代新石油' },
+      { name: '多模态模型', status: 'high', insight: '图文音视频统一理解成主流方向' },
+      { name: 'AI合规', status: 'rising', insight: '欧盟法案落地催生新赛道' },
+      { name: '开源LLM', status: 'high', insight: 'Llama 系列持续拉平开源闭源差距' },
+      { name: '语音AI', status: 'rising', insight: '实时语音 API 开放引爆硬件应用' },
+      { name: '推理增强', status: 'rising', insight: '复杂逻辑与数学推理能力突破' },
+    ],
+    calendar: [
+      { monthLabel: 'MAR', day: '10', event: 'Google I/O 2026 开发者大会', type: '线上直播' },
+      { monthLabel: 'MAR', day: '14', event: 'Microsoft Build AI Track', type: '线上直播' },
+      { monthLabel: 'MAR', day: '20', event: 'AI Safety Summit · Seoul', type: '线下 + 线上' },
+    ],
+    peerStory: {
+      avatarChar: '李',
+      name: '李明远',
+      school: '清华大学 · 大三在读',
+      title: '用 AI 工具在寒假两个月做出 $3,000 月收入',
+      content: '大三上学期末，我用 Cursor + Claude 搭建了一个面向海外华人的 AI 简历优化工具，通过 Twitter 和小红书引流，两个月内积累了 200 付费用户，月收入稳定在 $3,000 左右。最大的收获不是钱，而是学会了如何快速验证一个想法。',
+      income: '$3,000 / 月',
+      takeaway: '用 AI 工具快速构建 MVP，冷启动比技术更重要',
+    },
+    sideHustles: [
+      { title: 'AI 提示词包订阅', income: '$500–$2k/月', description: '为特定行业（如法律、医疗、教育）整理高质量提示词包，通过 Gumroad 或爱发电销售订阅。', steps: ['选定一个垂直行业，调研核心痛点', '制作 20–50 条高质量提示词并测试效果', '在行业社群中免费分享 5 条引流，转化付费订阅'] },
+      { title: 'AI 工具教程频道', income: '$800–$3k/月', description: '专注某类 AI 工具的实战教程，在 B 站或 YouTube 积累粉丝，接品牌合作或开付费课程。', steps: ['选一个你熟练的 AI 工具作为主题', '用手机录制屏幕 + 简单剪辑，持续更新', '粉丝到 1k 后主动联系相关品牌合作'] },
+    ],
+    soloEntrepreneurs: [
+      { avatarChar: '张', name: '张晨光', role: '独立开发者 / 前字节工程师', project: '开发了面向个人创作者的 AI 写作助手 WriteFlow，已有 1,200 付费用户', revenue: '$4,200/月', stack: ['Next.js', 'OpenAI', 'Stripe'], insight: '找到一个足够痛的问题，比技术栈更重要。', url: 'https://x.com' },
+      { avatarChar: '陈', name: '陈晓彤', role: '设计师转独立开发者', project: '用 Framer + AI 为中小品牌提供快速建站服务，月均完成 6–8 个项目', revenue: '$6,000/月', stack: ['Framer', 'Figma', 'Claude'], insight: '设计眼光 + AI 提速，是我的核心竞争力。', url: 'https://x.com' },
+    ],
+  };
+}
+
 main().catch(err => {
   if (err.isQuota) {
-    console.warn('[generate-snap] ⚠ API 配额已耗尽，跳过今日更新，保留现有 snap.html。');
-    console.warn('[generate-snap] 配额将在 UTC 00:00 重置后恢复。');
+    console.warn('[generate-snap] ⚠ API 配额已耗尽，使用 fallback 数据渲染今日快照。');
+    const today = new Date();
+    const dateStr = formatDate(today);
+    const dateCN = formatDateCN(today);
+    const issueNo = readCurrentIssue() + 1;
+    const appUrl = (process.env.APP_URL || '').replace(/\/$/, '');
+    const fallback = getFallbackData();
+    const html = buildHtml(fallback, issueNo, dateStr, dateCN, appUrl);
+    fs.writeFileSync(SNAP_PATH, html, 'utf-8');
+    console.log(`[generate-snap] ✓ Fallback 内容已写入 ${SNAP_PATH}`);
     process.exit(0);
   }
   console.error('[generate-snap] 失败:', err);

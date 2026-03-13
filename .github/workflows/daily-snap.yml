@@ -2,8 +2,8 @@ name: Daily Snap
 
 on:
   schedule:
-    # 每天 UTC 01:00（北京时间 09:00）触发
-    - cron: '0 1 * * *'
+    # 每天 UTC 22:00（北京时间次日 06:00）触发，避开白天主应用高峰期消耗配额
+    - cron: '0 22 * * *'
   # 允许在 GitHub Actions 页面手动触发
   workflow_dispatch:
 
