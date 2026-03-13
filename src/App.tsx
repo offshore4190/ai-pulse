@@ -287,7 +287,7 @@ function CampusVoice({ t }: { t: any, language: Language }) {
   );
 }
 
-function useAutoScroll(ref: React.RefObject<HTMLDivElement>, interval = 3000) {
+function useAutoScroll(ref: { current: HTMLDivElement | null }, interval = 3000) {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
@@ -339,7 +339,7 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
         ref={scrollRef}
         {...scrollHandlers}
         className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-2 scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overflowY: 'visible' }}
       >
         {sideHustles.map((hustle, idx) => (
           <motion.div 
@@ -347,7 +347,7 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="min-w-[85%] md:min-w-[350px] snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4 flex-shrink-0"
+            className="w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
@@ -459,7 +459,7 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
         ref={scrollRef}
         {...scrollHandlers}
         className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-2 scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overflowY: 'visible' }}
       >
         {entrepreneurs.map((person, idx) => (
           <motion.div 
@@ -467,7 +467,7 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="min-w-[85%] md:min-w-[300px] snap-center bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4 flex-shrink-0"
+            className="w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -1093,9 +1093,65 @@ export default function App() {
                 )}
               </div>
             </section>
+
+            {/* Topic Heatmap + Calendar side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Topic Heatmap */}
+              <section className="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
+                <h3 className="font-bold flex items-center gap-2 mb-4 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+                  <TrendingUp size={18} className="text-amber-700" />
+                  {t.topicRadar}
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {loading ? (
+                    Array(4).fill(0).map((_, i) => (
+                      <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
+                    ))
+                  ) : (
+                    (data?.topics || []).map((topic) => (
+                      <div key={topic.name} className="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-xs">#{topic.name}</span>
+                          <span className={`w-2 h-2 rounded-full ${topic.status === 'high' ? 'bg-rose-500' : 'bg-orange-400 animate-pulse'}`} />
+                        </div>
+                        <p className="text-[10px] text-gray-500 leading-tight">{topic.insight}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+              {/* Calendar */}
+              <section className="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
+                <h3 className="font-bold flex items-center gap-2 mb-4">
+                  <Calendar size={18} className="text-gray-500" />
+                  {t.upcoming}
+                </h3>
+                <div className="space-y-4">
+                  {loading ? (
+                    Array(2).fill(0).map((_, i) => (
+                      <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />
+                    ))
+                  ) : (
+                    (data?.calendar || []).map((item) => (
+                      <div key={item.event} className="flex gap-4">
+                        <div className="flex-shrink-0 w-10 text-center">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">{item.date.split(' ')[0]}</p>
+                          <p className="text-lg font-bold leading-none">{item.date.split(' ')[1]}</p>
+                        </div>
+                        <div className="flex-1 pb-4 border-b border-black/5 last:border-0">
+                          <p className="text-sm font-bold">{item.event}</p>
+                          <p className="text-xs text-gray-500">{t.globalEvent} · {t.virtual}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
           </div>
 
-          {/* Right Column: Social, Deals, Calendar */}
+          {/* Right Column: Social, Deals */}
           <div className="lg:col-span-4 space-y-6">
             {/* Social Signals - Investor Only */}
             {persona === 'investor' && (
@@ -1257,59 +1313,6 @@ export default function App() {
             {persona === 'student' && (
               <CampusVoice t={t} language={language} />
             )}
-
-            {/* Topic Heatmap */}
-            <section className="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
-              <h3 className="font-bold flex items-center gap-2 mb-4 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
-                <TrendingUp size={18} className="text-amber-700" />
-                {t.topicRadar}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {loading ? (
-                  Array(4).fill(0).map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
-                  ))
-                ) : (
-                  (data?.topics || []).map((topic) => (
-                    <div key={topic.name} className="p-3 rounded-2xl bg-gray-50 border border-black/5 hover:border-orange-200 transition-colors">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-xs">#{topic.name}</span>
-                        <span className={`w-2 h-2 rounded-full ${topic.status === 'high' ? 'bg-rose-500' : 'bg-orange-400 animate-pulse'}`} />
-                      </div>
-                      <p className="text-[10px] text-gray-500 leading-tight">{topic.insight}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-
-            {/* Calendar */}
-            <section className="bg-white rounded-3xl border border-black/5 shadow-sm p-5">
-              <h3 className="font-bold flex items-center gap-2 mb-4">
-                <Calendar size={18} className="text-gray-500" />
-                {t.upcoming}
-              </h3>
-              <div className="space-y-4">
-                {loading ? (
-                  Array(2).fill(0).map((_, i) => (
-                    <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />
-                  ))
-                ) : (
-                  (data?.calendar || []).map((item) => (
-                    <div key={item.event} className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 text-center">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase">{item.date.split(' ')[0]}</p>
-                        <p className="text-lg font-bold leading-none">{item.date.split(' ')[1]}</p>
-                      </div>
-                      <div className="flex-1 pb-4 border-b border-black/5 last:border-0">
-                        <p className="text-sm font-bold">{item.event}</p>
-                        <p className="text-xs text-gray-500">{t.globalEvent} · {t.virtual}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
           </div>
         </div>
             </motion.div>
