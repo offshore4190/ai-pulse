@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Persona, DashboardData, Language, Discipline } from './types';
 import { fetchDashboardData, prefetchNextData } from './services/geminiService';
+import DynamicBackground from './components/DynamicBackground';
 
 const translations = {
 // ... existing translations ...
@@ -524,7 +525,8 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans selection:bg-emerald-100`}>
+    <div className={`min-h-screen text-[#1A1A1A] font-sans selection:bg-emerald-100 relative`}>
+      <DynamicBackground />
       {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-bottom border-black/5 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
