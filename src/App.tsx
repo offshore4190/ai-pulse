@@ -30,9 +30,15 @@ import {
   Lightbulb,
   Rocket
 } from 'lucide-react';
-import { Persona, DashboardData, Language, Discipline } from './types';
+import { Persona, DashboardData, Language, Discipline, AgentIntro } from './types';
 import { fetchDashboardData, prefetchNextData } from './services/geminiService';
 import DynamicBackground from './components/DynamicBackground';
+
+const FALLBACK_AGENTS: AgentIntro[] = [
+  { name: "ChatGPT", category: "Assistant", features: ["Multi-turn dialogue", "Code generation", "Analysis"], description: "OpenAI's flagship conversational AI for research, writing, and analysis.", url: "https://chat.openai.com/" },
+  { name: "Perplexity", category: "Search", features: ["Real-time search", "Source citations"], description: "AI-powered search engine that provides direct answers with sources.", url: "https://www.perplexity.ai/" },
+  { name: "Cursor", category: "Coding", features: ["AI code editor", "Codebase context", "Auto-complete"], description: "AI-powered code editor that understands your entire codebase.", url: "https://cursor.sh/" },
+];
 
 const translations = {
 // ... existing translations ...
@@ -987,7 +993,13 @@ export default function App() {
                     <div key={i} className="h-64 bg-white rounded-3xl animate-pulse border border-black/5" />
                   ))
                 ) : (
-                  (data?.agentIntros || []).map((agent, i) => (
+                  (() => {
+                    const agents = data?.agentIntros || [];
+                    const displayed = agents.length >= 3
+                      ? agents.slice(0, 3)
+                      : [...agents, ...FALLBACK_AGENTS.filter(f => !agents.find(a => a.name === f.name))].slice(0, 3);
+                    return displayed;
+                  })().map((agent, i) => (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}

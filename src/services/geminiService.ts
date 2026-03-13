@@ -342,7 +342,9 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         { date: "MAR 15", event: "NVIDIA GTC Conference" }
       ],
       agentIntros: [
-        { name: "Devin", category: "Coding", features: ["Autonomous coding", "Shell access"], description: "The first autonomous AI software engineer.", url: "https://www.cognition-labs.com/" }
+        { name: "Devin", category: "Coding", features: ["Autonomous coding", "Shell access"], description: "The first autonomous AI software engineer.", url: "https://www.cognition-labs.com/" },
+        { name: "ChatGPT", category: "Assistant", features: ["Multi-turn dialogue", "Code generation", "Analysis"], description: "OpenAI's flagship conversational AI for research, writing, and analysis.", url: "https://chat.openai.com/" },
+        { name: "Cursor", category: "Coding", features: ["AI code editor", "Codebase context", "Auto-complete"], description: "AI-powered code editor that understands your entire codebase.", url: "https://cursor.sh/" }
       ]
     };
   } else {
@@ -487,7 +489,9 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         { date: "APR 10", event: "Google I/O 2026" }
       ],
       agentIntros: [
-        { name: "Perplexity", category: "Search", features: ["Real-time search", "Source citations"], description: "AI-powered search engine that provides direct answers.", url: "https://www.perplexity.ai/" }
+        { name: "Perplexity", category: "Search", features: ["Real-time search", "Source citations"], description: "AI-powered search engine that provides direct answers.", url: "https://www.perplexity.ai/" },
+        { name: "Notion AI", category: "Productivity", features: ["Note-taking", "Summarization", "Writing assist"], description: "AI built into Notion to help you write, summarize, and organize your notes.", url: "https://www.notion.so/product/ai" },
+        { name: "Gamma", category: "Presentation", features: ["AI slide deck", "Auto-design", "One-click export"], description: "Create beautiful presentations and documents with AI in minutes.", url: "https://gamma.app/" }
       ]
     };
   }
