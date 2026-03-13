@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   TrendingUp, 
@@ -102,8 +102,8 @@ const translations = {
     indieMaker: 'Indie Maker'
   },
   zh: {
-    investor: '投资�?,
-    student: '大学�?,
+    investor: '投资人',
+    student: '大学生',
     todaySignal: '重磅热咖',
     readAnalysis: '阅读深度分析',
     intelligenceStream: '投研黑咖',
@@ -116,12 +116,12 @@ const translations = {
     interpretation: '深度解读',
     signal: '投资信号',
     action: '行动建议',
-    footerDesc: '为下一代建设者和支持者提供的高保真情报�?,
+    footerDesc: '为下一代建设者和支持者提供的高保真情报站',
     product: '产品',
     company: '公司',
     subscribe: '订阅',
     join: '加入',
-    rights: '版权所有�?,
+    rights: '版权所有',
     live: '实时',
     resource: '资源',
     minRead: '分钟阅读',
@@ -138,32 +138,32 @@ const translations = {
     business: '商科',
     futureTrend: '未来趋势',
     errorTitle: '投研黑咖暂时中断',
-    errorDesc: '当前 API 配额已耗尽。请稍候重试，或切换至您的付费 API 密钥以获得不间断服务�?,
+    errorDesc: '当前 API 配额已耗尽。请稍候重试，或切换至您的付费 API 密钥以获得不间断服务。',
     retry: '重试连接',
-    switchKey: '切换至付�?API 密钥',
+    switchKey: '切换至付费 API 密钥',
     demoMode: '演示模式',
-    demoNotice: '由于配额限制，实时流已暂停。正在显示示例数据�?,
+    demoNotice: '由于配额限制，实时流已暂停。正在显示示例数据。',
     papers: '前沿学术研究',
     majorNews: '专业细分时讯',
     forums: '可交流的论坛',
-    backToDashboard: '返回仪表�?,
+    backToDashboard: '返回仪表盘',
     deepDiveTitle: '专业特调 深度探索',
     viewPost: '查看原文',
     campusVoice: '不装了，我也在用AI',
-    campusVoiceDesc: '与同学分享你�?AI 见解�?,
-    sharePlaceholder: '今天你发现了什�?AI 突破�?,
+    campusVoiceDesc: '与同学分享你的 AI 见解',
+    sharePlaceholder: '今天你发现了什么 AI 突破？',
     post: '发布',
     anonymous: '匿名用户',
-    complianceNotice: '请保持友善。内容将经过审核以确保社区安全�?,
+    complianceNotice: '请保持友善。内容将经过审核以确保社区安全。',
     sideHustleTitle: '本周副业冰萃',
-    lowCostStart: '低成本启�?,
+    lowCostStart: '低成本启动',
     peerStoryTitle: '全球同咖',
     weeklyStory: '本周故事',
-    whatYouCanLearn: '你可以学�?,
+    whatYouCanLearn: '你可以学到',
     income: '收入',
     funding: '融了',
-    soloEntrepreneurTitle: '独立创咖 / 青年创业�?,
-    indieMaker: '独立开发�?
+    soloEntrepreneurTitle: '独立创咖 / 青年创业者',
+    indieMaker: '独立开发者'
   }
 };
 
@@ -191,7 +191,7 @@ function CampusVoice({ t }: { t: any, language: Language }) {
         }
       }
     } catch {
-      // silent fail �?network blip
+      // silent fail on network blip
     }
   };
 
@@ -368,7 +368,7 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
             <div>
               <h4 className="font-bold text-lg">{story.author.name}</h4>
               <p className="text-xs text-gray-500 font-medium">
-                {story.author.school} �?{story.author.status}
+                {story.author.school} · {story.author.status}
               </p>
             </div>
           </div>
@@ -1048,7 +1048,7 @@ export default function App() {
                         </div>
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} �?{item.timestamp}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} · {item.timestamp}</span>
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Bookmark size={14} /></button>
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Share2 size={14} /></button>
@@ -1130,7 +1130,7 @@ export default function App() {
                               <span className="text-gray-400 text-xs">{signal.author.handle}</span>
                             </div>
                             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tight">
-                              {signal.author.role} �?{signal.author.followers}
+                              {signal.author.role} · {signal.author.followers}
                             </p>
                           </div>
                         </div>
@@ -1221,7 +1221,7 @@ export default function App() {
                         </div>
                         <div>
                           <p className="font-bold text-sm line-clamp-1">{item.title}</p>
-                          <p className="text-xs text-gray-500">{t.resource} �?5 {t.minRead}</p>
+                          <p className="text-xs text-gray-500">{t.resource} · 5 {t.minRead}</p>
                         </div>
                         <ExternalLink size={14} className="ml-auto text-gray-300" />
                       </a>
@@ -1281,7 +1281,7 @@ export default function App() {
                       </div>
                       <div className="flex-1 pb-4 border-b border-black/5 last:border-0">
                         <p className="text-sm font-bold">{item.event}</p>
-                        <p className="text-xs text-gray-500">{t.globalEvent} �?{t.virtual}</p>
+                        <p className="text-xs text-gray-500">{t.globalEvent} · {t.virtual}</p>
                       </div>
                     </div>
                   ))
