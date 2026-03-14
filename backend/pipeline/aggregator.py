@@ -105,16 +105,26 @@ def _build_news_items(processed: List[ProcessedItem], limit: int = 8) -> List[di
     """Convert top ProcessedItem rows into DashboardData news[] entries."""
     news = []
     for i, item in enumerate(processed[:limit]):
-        news.append({
+        source_dt = getattr(item, "source_published_at", None)
+        timestamp = _relative_time(source_dt if source_dt else item.processed_at)
+        source_first_published = None
+        if source_dt:
+            if source_dt.tzinfo is None:
+                source_dt = source_dt.replace(tzinfo=timezone.utc)
+            source_first_published = source_dt.isoformat()
+        entry = {
             "id": f"pi-{item.id}",
             "type": CATEGORY_TYPE_MAP.get(item.category, "tech"),
             "title": item.title_zh,
             "context": item.summary_zh,
             "source": item.source_name or item.source_type or "AI Pulse",
             "takeaway": item.summary_zh,
-            "timestamp": _relative_time(item.processed_at),
+            "timestamp": timestamp,
             "url": item.original_url,
-        })
+        }
+        if source_first_published:
+            entry["sourceFirstPublishedAt"] = source_first_published
+        news.append(entry)
     return news
 
 

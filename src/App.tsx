@@ -30,18 +30,25 @@ import {
   Lightbulb,
   Rocket,
   Flame,
-  Award
+  Award,
+  Headphones
 } from 'lucide-react';
 import { Persona, DashboardData, Language, Discipline, AgentIntro, UserStats } from './types';
 import { useLanguage } from './contexts/LanguageContext';
 import { fetchDashboardData, prefetchNextData } from './services/geminiService';
 import { getUserStats, recordReadAction, addPoints } from './services/userStatsService';
 import DynamicBackground from './components/DynamicBackground';
+import PodcastDailyView from './components/PodcastDailyView';
 
-const FALLBACK_AGENTS: AgentIntro[] = [
+const FALLBACK_AGENTS_EN: AgentIntro[] = [
   { name: "ChatGPT", category: "Assistant", features: ["Multi-turn dialogue", "Code generation", "Analysis"], description: "OpenAI's flagship conversational AI for research, writing, and analysis.", url: "https://chat.openai.com/" },
   { name: "Perplexity", category: "Search", features: ["Real-time search", "Source citations"], description: "AI-powered search engine that provides direct answers with sources.", url: "https://www.perplexity.ai/" },
   { name: "Cursor", category: "Coding", features: ["AI code editor", "Codebase context", "Auto-complete"], description: "AI-powered code editor that understands your entire codebase.", url: "https://cursor.sh/" },
+];
+const FALLBACK_AGENTS_ZH: AgentIntro[] = [
+  { name: "ChatGPT", category: "助手", features: ["多轮对话", "代码生成", "分析"], description: "OpenAI 旗舰对话 AI，用于研究、写作与分析。", url: "https://chat.openai.com/" },
+  { name: "Perplexity", category: "搜索", features: ["实时搜索", "来源引用"], description: "提供直接答案与来源的 AI 搜索引擎。", url: "https://www.perplexity.ai/" },
+  { name: "Cursor", category: "编程", features: ["AI 代码编辑器", "代码库上下文", "自动补全"], description: "理解你整个代码库的 AI 代码编辑器。", url: "https://cursor.sh/" },
 ];
 
 const translations = {
@@ -140,7 +147,21 @@ const translations = {
     generateScript: 'Generate Script',
     chapterNav: 'Chapter Navigation',
     generating: 'Generating...',
-    podcastEmptyHint: 'Select a voice tone and click "Generate Script" to convert today\'s report into podcast-style text.'
+    podcastEmptyHint: 'Select a voice tone and click "Generate Script" to convert today\'s report into podcast-style text.',
+    revenue: 'Revenue',
+    project: 'Project',
+    recent: 'Recent',
+    sourceFirstPublished: 'First published',
+    switchToEnglish: 'EN',
+    switchToChinese: 'Chinese',
+    twitter: 'Twitter',
+    linkedIn: 'LinkedIn',
+    discord: 'Discord',
+    fetchError: 'Failed to fetch data. Please retry.',
+    apiKeyUnavailable: 'API key selection is not available in this environment.',
+    profileButton: 'JD',
+    exploreMore: 'Explore More',
+    collapse: 'Collapse'
   },
   zh: {
     investor: '投资人',
@@ -235,11 +256,24 @@ const translations = {
     generateScript: '生成播客稿',
     chapterNav: '章节导航',
     generating: '生成中...',
-    podcastEmptyHint: '选择语气后点击「生成播客稿」，即可将今日日报转为播客式文本'
+    podcastEmptyHint: '选择语气后点击「生成播客稿」，即可将今日日报转为播客式文本',
+    revenue: '营收',
+    project: '项目',
+    recent: '最近',
+    switchToEnglish: '英语',
+    switchToChinese: '中文',
+    twitter: '推特',
+    linkedIn: '领英',
+    discord: 'Discord',
+    fetchError: '数据加载失败，请重试',
+    apiKeyUnavailable: '当前环境无法切换 API 密钥',
+    profileButton: '今日',
+    exploreMore: '探索更多',
+    collapse: '收起'
   }
 };
 
-function CampusVoice({ t, dailyPrompt, onPostSuccess }: { t: any; language: Language; dailyPrompt?: string; onPostSuccess?: () => void }) {
+function CampusVoice({ t, language, dailyPrompt, onPostSuccess }: { t: any; language: Language; dailyPrompt?: string; onPostSuccess?: () => void }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
@@ -344,7 +378,7 @@ function CampusVoice({ t, dailyPrompt, onPostSuccess }: { t: any; language: Lang
               </span>
               <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">{featuredMessage.user}</span>
               <span className="text-[10px] text-gray-400 ml-auto">
-                {new Date(featuredMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(featuredMessage.timestamp).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
             <p className="text-sm text-gray-800 leading-relaxed font-medium">"{featuredMessage.text}"</p>
@@ -363,7 +397,7 @@ function CampusVoice({ t, dailyPrompt, onPostSuccess }: { t: any; language: Lang
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">{msg.user}</span>
               <span className="text-[10px] text-gray-400">
-                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.timestamp).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
             <div className="bg-gray-50 p-3 rounded-2xl rounded-tl-none border border-black/5">
@@ -494,224 +528,131 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
   );
 }
 
-function PeerStorySection({ t, story }: { t: any, story: any }) {
-  if (!story || !story.author) return null;
+function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story: any; entrepreneurs: any[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollHandlers = useAutoScroll(scrollRef, 3500);
+
+  const hasStory = story && story.author;
+  const hasEntrepreneurs = entrepreneurs && entrepreneurs.length > 0;
+  if (!hasStory && !hasEntrepreneurs) return null;
+
+  const cards: ({ type: 'peer'; data: any } | { type: 'solo'; data: any })[] = [];
+  if (hasStory) cards.push({ type: 'peer', data: story });
+  if (hasEntrepreneurs) entrepreneurs.forEach((e: any) => cards.push({ type: 'solo', data: e }));
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
           <Globe size={20} className="text-amber-700" />
           {t.peerStoryTitle}
+          <span className="text-gray-400 font-normal text-sm">/</span>
+          <Rocket size={18} className="text-amber-600" />
+          {t.soloEntrepreneurTitle}
         </h3>
         <span className="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
           {t.weeklyStory}
         </span>
       </div>
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-6"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src={story.author.avatar} 
-              alt="" 
-              className="w-12 h-12 rounded-2xl bg-gray-100" 
-              referrerPolicy="no-referrer"
-            />
-            <div>
-              <h4 className="font-bold text-lg">{story.author.name}</h4>
-              <p className="text-xs text-gray-500 font-medium">
-                {story.author.school} · {story.author.status}
-              </p>
-              {story.timestamp && (
-                <p className="text-[9px] text-gray-500 font-medium tabular-nums mt-0.5">{story.timestamp}</p>
-              )}
-            </div>
-          </div>
-          <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1 rounded-lg">
-            {story.funding}
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          <h5 className="font-bold text-gray-800 leading-tight">{story.title}</h5>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {story.content}
-          </p>
-        </div>
-
-        <div className="pt-4 border-t border-black/5">
-          <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-2">
-            <Lightbulb size={14} />
-            {t.whatYouCanLearn}
-          </div>
-          <p className="text-sm font-medium text-gray-700 italic">
-            {story.takeaway}
-          </p>
-        </div>
-      </motion.div>
-    </section>
-  );
-}
-
-function HeroPeerStory({ t, story }: { t: any; story: any }) {
-  if (!story || !story.author) return null;
-  return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group"
-    >
-      {/* Decorative blobs */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px] -mr-36 -mt-36 rounded-full" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/10 blur-[80px] -ml-24 -mb-24 rounded-full" />
-
-      <div className="relative z-10 space-y-5">
-        {/* Label row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-purple-400">
-            <Globe size={15} fill="currentColor" />
-            <span className="text-xs font-bold uppercase tracking-[0.2em]">{t.peerStoryTitle}</span>
-          </div>
-          <span className="text-[10px] font-bold bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-500/30">
-            {t.weeklyStory}
-          </span>
-        </div>
-
-        {/* Author row */}
-        <div className="flex items-center gap-3">
-          {story.author.avatar ? (
-            <img
-              src={story.author.avatar}
-              alt=""
-              className="w-12 h-12 rounded-2xl bg-white/10 object-cover"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-lg">
-              {story.author.name?.charAt(0) ?? '?'}
-            </div>
-          )}
-          <div>
-            <p className="font-bold text-white">{story.author.name}</p>
-            <p className="text-xs text-white/50 font-medium">
-              {story.author.school} · {story.author.status}
-            </p>
-          </div>
-          {story.funding && (
-            <div className="ml-auto bg-teal-500/20 text-teal-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-teal-500/30">
-              {story.funding}
-            </div>
-          )}
-        </div>
-
-        {/* Story title — conversational hook */}
-        <h2 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
-          {story.title}
-        </h2>
-
-        <p className="text-white/60 text-base leading-relaxed max-w-2xl">
-          {story.content}
-        </p>
-
-        {/* Takeaway pill */}
-        <div className="pt-2 flex flex-col md:flex-row gap-4">
-          <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb size={13} className="text-amber-400" />
-              <p className="text-[10px] uppercase font-bold text-amber-400">{t.whatYouCanLearn}</p>
-            </div>
-            <p className="text-sm italic leading-relaxed text-white/80">"{story.takeaway}"</p>
-          </div>
-        </div>
-      </div>
-    </motion.section>
-  );
-}
-
-function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: any[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollHandlers = useAutoScroll(scrollRef, 3500); // Slightly different interval for variety
-
-  if (!entrepreneurs || entrepreneurs.length === 0) return null;
-  return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between px-2">
-        <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
-          <Rocket size={20} className="text-amber-700" />
-          {t.soloEntrepreneurTitle}
-        </h3>
-        <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
-          {t.indieMaker}
-        </span>
-      </div>
-      <div 
+      <div
         ref={scrollRef}
         {...scrollHandlers}
         className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-2 scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overflowY: 'visible' }}
       >
-        {entrepreneurs.map((person, idx) => (
-          <motion.div 
-            key={person.id}
+        {cards.map((card, idx) => (
+          <motion.div
+            key={card.type === 'peer' ? 'peer' : card.data.id}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-5 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+            className="w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img 
-                  src={person.avatar} 
-                  alt="" 
-                  className="w-10 h-10 rounded-xl bg-gray-100" 
-                  referrerPolicy="no-referrer"
-                />
-                <div>
-                  <h4 className="font-bold text-sm">{person.name}</h4>
-                  <p className="text-[10px] text-gray-500 font-medium">{person.role}</p>
+            {card.type === 'peer' ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={card.data.author.avatar}
+                      alt=""
+                      className="w-12 h-12 rounded-2xl bg-gray-100"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div>
+                      <h4 className="font-bold text-lg">{card.data.author.name}</h4>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {card.data.author.school} · {card.data.author.status}
+                      </p>
+                      {card.data.timestamp && (
+                        <p className="text-[9px] text-gray-500 font-medium tabular-nums mt-0.5">{card.data.timestamp}</p>
+                      )}
+                    </div>
+                  </div>
+                  {card.data.funding && (
+                    <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1 rounded-lg">{card.data.funding}</div>
+                  )}
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-rose-600">{person.revenue}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Revenue</p>
-                {person.timestamp && (
-                  <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{person.timestamp}</p>
-                )}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Project:</span>
-                <span className="text-sm font-bold text-gray-800">{person.project}</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {person.stack.map((tech: string) => (
-                  <span key={tech} className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-bold uppercase">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-rose-50/50 p-3 rounded-2xl border border-rose-100/50">
-              <p className="text-xs text-rose-900 leading-relaxed italic">
-                "{person.insight}"
-              </p>
-            </div>
-
-            <a 
-              href={person.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2 bg-gray-50 hover:bg-black hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
-            >
-              {t.visitSite} <ExternalLink size={12} />
-            </a>
+                <div className="space-y-3">
+                  <h5 className="font-bold text-gray-800 leading-tight">{card.data.title}</h5>
+                  <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{card.data.content}</p>
+                </div>
+                <div className="pt-4 border-t border-black/5">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-2">
+                    <Lightbulb size={14} />
+                    {t.whatYouCanLearn}
+                  </div>
+                  <p className="text-sm font-medium text-gray-700 italic">{card.data.takeaway}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={card.data.avatar}
+                      alt=""
+                      className="w-10 h-10 rounded-xl bg-gray-100"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div>
+                      <h4 className="font-bold text-sm">{card.data.name}</h4>
+                      <p className="text-[10px] text-gray-500 font-medium">{card.data.role}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-rose-600">{card.data.revenue}</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-tighter">{t.revenue}</p>
+                    {card.data.timestamp && (
+                      <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{card.data.timestamp}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.project}:</span>
+                    <span className="text-sm font-bold text-gray-800">{card.data.project}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {card.data.stack.map((tech: string) => (
+                      <span key={tech} className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-bold uppercase">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-rose-50/50 p-3 rounded-2xl border border-rose-100/50">
+                  <p className="text-xs text-rose-900 leading-relaxed italic">"{card.data.insight}"</p>
+                </div>
+                <a
+                  href={card.data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2 bg-gray-50 hover:bg-black hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+                >
+                  {t.visitSite} <ExternalLink size={12} />
+                </a>
+              </>
+            )}
           </motion.div>
         ))}
       </div>
@@ -755,6 +696,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [showDeepDive, setShowDeepDive] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showPodcast, setShowPodcast] = useState(false);
+  const [expandNews, setExpandNews] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   const t = translations[language];
@@ -810,7 +753,7 @@ export default function App() {
       console.error(err);
       // Only show error card if we have NO data at all (not even demo/cached)
       if (!data) {
-        setError(err.message || 'Failed to fetch data');
+        setError(err.message || t.fetchError);
       }
     } finally {
       setLoading(false);
@@ -822,7 +765,7 @@ export default function App() {
       await window.aistudio.openSelectKey();
       loadData();
     } else {
-      alert('API key selection is not available in this environment.');
+      alert(t.apiKeyUnavailable);
     }
   };
 
@@ -852,10 +795,10 @@ export default function App() {
               </div>
               <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-1 px-2 py-1 bg-black/5 hover:bg-black/10 rounded-full text-xs font-medium">
                 <Languages size={12} />
-                {language === 'en' ? '中文' : 'EN'}
+                {language === 'en' ? t.switchToChinese : t.switchToEnglish}
               </button>
               <button className="p-1.5 text-gray-500 hover:bg-black/5 rounded-full"><Search size={18} /></button>
-              <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-7 h-7 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold shrink-0">JD</button>
+              <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-7 h-7 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold shrink-0">{t.profileButton}</button>
             </div>
           </div>
           <div className="flex justify-end text-[10px] text-gray-500 font-medium tabular-nums">
@@ -877,7 +820,7 @@ export default function App() {
               <button onClick={() => setPersona('investor')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><BarChart3 size={14} />{t.investor}</button>
               <button onClick={() => setPersona('student')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><GraduationCap size={14} />{t.student}</button>
             </div>
-            <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium"><Languages size={14} />{language === 'en' ? '中文' : 'EN'}</button>
+            <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium"><Languages size={14} />{language === 'en' ? t.switchToChinese : t.switchToEnglish}</button>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end leading-tight">
@@ -885,7 +828,7 @@ export default function App() {
               <span className="text-[11px] font-bold text-gray-600 tabular-nums">{new Date().toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') + ' 06:00'}</span>
             </div>
             <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full"><Search size={20} /></button>
-            <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold">JD</button>
+            <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold">{t.profileButton}</button>
           </div>
         </div>
         </div>
@@ -956,6 +899,14 @@ export default function App() {
                 </motion.div>
               </div>
             </motion.div>
+          ) : showPodcast ? (
+            <PodcastDailyView
+              data={data}
+              persona={persona}
+              language={language}
+              t={t}
+              onBack={() => setShowPodcast(false)}
+            />
           ) : showDeepDive ? (
             <motion.div
               key="deep-dive"
@@ -1048,7 +999,7 @@ export default function App() {
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{news.source}</span>
-                              <span className="text-[9px] text-gray-500 font-medium tabular-nums">{news.timestamp}</span>
+                              <span className="text-[9px] text-gray-500 font-medium tabular-nums">{news.sourceFirstPublishedAt ? `${t.sourceFirstPublished} ` : ''}{news.timestamp}</span>
                             </div>
                             <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors leading-snug">
                               {news.title}
@@ -1057,7 +1008,7 @@ export default function App() {
                               {news.context}
                             </p>
                             <div className="pt-2 flex items-center gap-2 text-blue-600 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                              View Article <ExternalLink size={12} />
+                              {t.viewPost} <ExternalLink size={12} />
                             </div>
                           </div>
                         </a>
@@ -1151,7 +1102,7 @@ export default function App() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {loading ? (
             Array(5).fill(0).map((_, i) => (
-              <div key={i} className="h-20 bg-white rounded-2xl animate-pulse border border-black/5" />
+              <div key={i} className={`h-20 bg-white rounded-2xl animate-pulse border border-black/5 ${i >= 4 ? 'hidden md:block' : ''}`} />
             ))
           ) : (
             (data?.metrics || []).map((metric, i) => (
@@ -1160,7 +1111,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 key={metric.label} 
-                className="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow"
+                className={`bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow ${i >= 4 ? 'hidden md:block' : ''}`}
               >
                 <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">{metric.label}</p>
                 <div className="flex items-baseline gap-2">
@@ -1181,20 +1132,7 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: News & Signals */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Student Hero: PeerStory 上移至首屏 */}
-            {persona === 'student' && !loading && data?.peerStory && (
-              <HeroPeerStory story={data.peerStory} t={t} />
-            )}
-            {/* Student loading skeleton for hero */}
-            {persona === 'student' && loading && (
-              <div className="bg-black rounded-3xl p-8 space-y-4 animate-pulse">
-                <div className="h-4 w-1/4 bg-white/10 rounded" />
-                <div className="h-8 w-3/4 bg-white/10 rounded" />
-                <div className="h-4 w-full bg-white/10 rounded" />
-                <div className="h-4 w-2/3 bg-white/10 rounded" />
-              </div>
-            )}
-            {/* Heavy Hitter (Hero) — always shown for investor; shown for student as secondary signal below PeerStory */}
+            {/* Heavy Hitter — position 1 for both; student gets expanded with 投研 news + 探索更多 */}
             <section className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
               <div className="relative z-10 space-y-4">
@@ -1242,10 +1180,59 @@ export default function App() {
                         <ChevronRight size={18} />
                       </button>
                     </div>
+                    {/* Student-only: 投研黑咖 news preview + 探索更多 */}
+                    {persona === 'student' && (data?.news?.length ?? 0) > 0 && (
+                      <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
+                        <div className="space-y-2">
+                          {(expandNews ? data!.news! : data!.news!.slice(0, 3)).map((item, i) => (
+                            <motion.a 
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              key={item.id}
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.05 }}
+                              className="block p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                                  {item.type === 'product' && <Cpu size={14} />}
+                                  {item.type === 'funding' && <Briefcase size={14} />}
+                                  {item.type === 'research' && <GraduationCap size={14} />}
+                                  {item.type === 'tech' && <Zap size={14} />}
+                                  {item.type === 'policy' && <Globe size={14} />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm text-white/90 line-clamp-1">{item.title}</p>
+                                  <p className="text-xs text-white/50 mt-0.5">{item.source}{item.timestamp && ` · ${item.timestamp}`}</p>
+                                  <p className="text-xs text-teal-300/90 mt-1.5 line-clamp-1">{(t.actionStudent ?? t.action)}: {item.takeaway}</p>
+                                </div>
+                                <ChevronRight size={14} className="flex-shrink-0 text-white/40" />
+                              </div>
+                            </motion.a>
+                          ))}
+                        </div>
+                        {data!.news!.length > 3 && (
+                          <button
+                            onClick={() => setExpandNews(!expandNews)}
+                            className="w-full py-3 rounded-xl border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 text-sm font-medium"
+                          >
+                            {expandNews ? t.collapse : t.exploreMore}
+                            <ChevronRight size={16} className={expandNews ? 'rotate-90' : ''} />
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
             </section>
+
+            {/* Sliding cards: 全球同咖 + 独立创咖 — student only, position 2 */}
+            {persona === 'student' && !loading && (data?.peerStory || (data?.soloEntrepreneurs?.length ?? 0) > 0) && (
+              <PeerStorySoloSlidingCards t={t} story={data?.peerStory} entrepreneurs={data?.soloEntrepreneurs || []} />
+            )}
 
             {/* AI + Major Section */}
             <section className="space-y-4">
@@ -1339,9 +1326,10 @@ export default function App() {
                 ) : (
                   (() => {
                     const agents = data?.agentIntros || [];
+                    const fallbackAgents = language === 'zh' ? FALLBACK_AGENTS_ZH : FALLBACK_AGENTS_EN;
                     const displayed = agents.length >= 3
                       ? agents.slice(0, 3)
-                      : [...agents, ...FALLBACK_AGENTS.filter(f => !agents.find(a => a.name === f.name))].slice(0, 3);
+                      : [...agents, ...fallbackAgents.filter(f => !agents.find(a => a.name === f.name))].slice(0, 3);
                     return displayed;
                   })().map((agent, i) => (
                     <motion.div
@@ -1389,66 +1377,66 @@ export default function App() {
               </div>
             </section>
 
-            {/* News Feed */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between px-2">
-                <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
-                  <Globe size={20} className="text-amber-700" />
-                  {t.intelligenceStream}
-                </h3>
-                <button className="text-sm font-medium text-gray-500 hover:text-black transition-colors">{t.viewAll}</button>
-              </div>
-              
-              <div className="space-y-3">
-                {loading ? (
-                  Array(4).fill(0).map((_, i) => (
-                    <div key={i} className="h-32 bg-white rounded-2xl animate-pulse border border-black/5" />
-                  ))
-                ) : (
-                  (data?.news || []).map((item, i) => (
-                    <motion.a 
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      key={item.id} 
-                      className="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block"
-                    >
-                      <div className="flex gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
-                          {item.type === 'product' && <Cpu size={24} />}
-                          {item.type === 'funding' && <Briefcase size={24} />}
-                          {item.type === 'research' && <GraduationCap size={24} />}
-                          {item.type === 'tech' && <Zap size={24} />}
-                          {item.type === 'policy' && <Globe size={24} />}
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} · <span className="text-[9px] text-gray-500 font-normal not-italic">{item.timestamp}</span></span>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Bookmark size={14} /></button>
-                              <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Share2 size={14} /></button>
+            {/* News Feed (投研黑咖) — investor only; student content is in Heavy Hitter */}
+            {persona === 'investor' && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
+                    <Globe size={20} className="text-amber-700" />
+                    {t.intelligenceStream}
+                  </h3>
+                  <button className="text-sm font-medium text-gray-500 hover:text-black transition-colors">{t.viewAll}</button>
+                </div>
+                
+                <div className="space-y-3">
+                  {loading ? (
+                    Array(4).fill(0).map((_, i) => (
+                      <div key={i} className="h-32 bg-white rounded-2xl animate-pulse border border-black/5" />
+                    ))
+                  ) : (
+                    (data?.news || []).map((item, i) => (
+                      <motion.a 
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        key={item.id} 
+                        className="bg-white p-5 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-all group block"
+                      >
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
+                            {item.type === 'product' && <Cpu size={24} />}
+                            {item.type === 'funding' && <Briefcase size={24} />}
+                            {item.type === 'research' && <GraduationCap size={24} />}
+                            {item.type === 'tech' && <Zap size={24} />}
+                            {item.type === 'policy' && <Globe size={24} />}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} · <span className="text-[9px] text-gray-500 font-normal not-italic">{item.timestamp}</span></span>
+                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Bookmark size={14} /></button>
+                                <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Share2 size={14} /></button>
+                              </div>
+                            </div>
+                            <h4 className="text-lg font-bold leading-snug group-hover:text-teal-600 transition-colors">{item.title}</h4>
+                            <p className="text-sm text-gray-500 line-clamp-2">{item.context}</p>
+                            <div className="bg-gray-50 p-3 rounded-xl border-l-2 border-teal-500">
+                              <p className="text-xs font-medium text-gray-700">
+                                <span className="font-bold text-teal-600 uppercase mr-2">{t.signal}:</span>
+                                {item.takeaway}
+                              </p>
                             </div>
                           </div>
-                          <h4 className="text-lg font-bold leading-snug group-hover:text-teal-600 transition-colors">{item.title}</h4>
-                          <p className="text-sm text-gray-500 line-clamp-2">{item.context}</p>
-                          <div className="bg-gray-50 p-3 rounded-xl border-l-2 border-teal-500">
-                            <p className="text-xs font-medium text-gray-700">
-                              <span className="font-bold text-teal-600 uppercase mr-2">
-                                {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}:
-                              </span>
-                              {item.takeaway}
-                            </p>
-                          </div>
                         </div>
-                      </div>
-                    </motion.a>
-                  ))
-                )}
-              </div>
-            </section>
+                      </motion.a>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
 
             {/* Topic Heatmap + Calendar side by side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1603,13 +1591,9 @@ export default function App() {
               </section>
             )}
 
-            {/* Student Specific Modules */}
+            {/* Student Specific Modules — PeerStory & SoloEntrepreneur moved to left sliding cards */}
             {persona === 'student' && !loading && data && (
-              <>
-                <SideHustleSection t={t} sideHustles={data.sideHustles || []} />
-                <PeerStorySection t={t} story={data.peerStory} />
-                <SoloEntrepreneurSection t={t} entrepreneurs={data.soloEntrepreneurs || []} />
-              </>
+              <SideHustleSection t={t} sideHustles={data.sideHustles || []} />
             )}
 
             {/* Deals or Learning Resources */}
@@ -1647,7 +1631,7 @@ export default function App() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-sm">{deal.amount}</p>
-                          <p className="text-[9px] text-gray-500 tabular-nums">{deal.timestamp || 'Recent'}</p>
+                          <p className="text-[9px] text-gray-500 tabular-nums">{deal.timestamp || t.recent}</p>
                         </div>
                       </a>
                     ))
@@ -1733,33 +1717,38 @@ export default function App() {
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
           <p>© 2026 Daily Shot. {t.rights}</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-black">Twitter</a>
-            <a href="#" className="hover:text-black">LinkedIn</a>
-            <a href="#" className="hover:text-black">Discord</a>
+            <a href="#" className="hover:text-black">{t.twitter}</a>
+            <a href="#" className="hover:text-black">{t.linkedIn}</a>
+            <a href="#" className="hover:text-black">{t.discord}</a>
           </div>
         </div>
       </footer>
 
-      {/* Floating stats widget - only on dashboard view */}
-      {!showDeepDive && !showProfile && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          onClick={() => { setShowProfile(true); refreshUserStats(); }}
-          className="fixed bottom-6 right-6 z-40 px-4 py-3 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-3"
+      {/* Right-side vertical floating bar - only on dashboard view */}
+      {!showDeepDive && !showProfile && !showPodcast && (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 p-2 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl shadow-lg"
         >
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowPodcast(true)}
+            className="p-3 rounded-xl hover:bg-violet-50 text-violet-600 hover:text-violet-700 transition-colors"
+            title={t.podcastDaily}
+          >
+            <Headphones size={20} />
+          </button>
+          <button
+            onClick={() => { setShowProfile(true); refreshUserStats(); }}
+            className="p-3 rounded-xl hover:bg-amber-50 transition-colors flex flex-col items-center gap-0.5"
+            title={t.myProfileFloat}
+          >
             <Award size={18} className="text-amber-600" />
-            <span className="text-sm font-bold tabular-nums">{(userStats ?? getUserStats()).aiLiteracyPoints}</span>
-          </div>
-          <span className="text-gray-300">|</span>
-          <div className="flex items-center gap-2">
-            <Flame size={18} className="text-rose-500" />
-            <span className="text-sm font-bold tabular-nums">{(userStats ?? getUserStats()).currentStreakDays}</span>
-            <span className="text-[10px] text-gray-500">{t.continuousReadDays}</span>
-          </div>
-          <ChevronRight size={14} className="text-gray-400" />
-        </motion.button>
+            <span className="text-[10px] font-bold tabular-nums text-amber-600">{(userStats ?? getUserStats()).aiLiteracyPoints}</span>
+            <Flame size={14} className="text-rose-500" />
+            <span className="text-[9px] font-bold tabular-nums text-rose-500">{(userStats ?? getUserStats()).currentStreakDays}</span>
+          </button>
+        </motion.div>
       )}
     </div>
   );

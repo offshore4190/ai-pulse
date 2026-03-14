@@ -152,7 +152,9 @@ def preprocess_and_store(
 
     # ── Step 4: Insert into raw_items ───────────────────────────────────────
     inserted: List[RawItem] = []
+    now = datetime.now(timezone.utc)
     for c in cleaned:
+        source_published = getattr(c["item"], "published_at", None)
         orm_obj = RawItem(
             url=c["item"].url,
             url_hash=c["url_hash"],
@@ -161,7 +163,8 @@ def preprocess_and_store(
             source_type=c["item"].source_type,
             source_name=c["item"].source_name,
             language_detected=c["lang"],
-            fetched_at=getattr(c["item"], "published_at", None) or datetime.now(timezone.utc),
+            fetched_at=now,
+            published_at=source_published,
         )
         db.add(orm_obj)
         inserted.append(orm_obj)

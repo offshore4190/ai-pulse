@@ -27,6 +27,8 @@ export interface NewsItem {
   takeaway: string; // "Investment Perspective" or "Learning Perspective"
   timestamp: string;
   url: string;
+  /** ISO 8601 string: when the information source first published */
+  sourceFirstPublishedAt?: string;
 }
 
 export interface SocialSignal {
@@ -229,6 +231,18 @@ export type TranslationKeys = {
   chapterNav: string;
   generating: string;
   podcastEmptyHint: string;
+  revenue: string;
+  project: string;
+  recent: string;
+  sourceFirstPublished: string;
+  switchToEnglish: string;
+  switchToChinese: string;
+  twitter: string;
+  linkedIn: string;
+  discord: string;
+  fetchError: string;
+  apiKeyUnavailable: string;
+  profileButton: string;
 }
 
 export interface DashboardData {

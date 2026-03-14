@@ -146,6 +146,7 @@ def process_raw_items(raw_items: List[RawItem], db: Session) -> List[ProcessedIt
                 source_name=item.source_name,
                 source_type=item.source_type,
                 processed_at=datetime.now(timezone.utc),
+                source_published_at=getattr(item, "published_at", None),
             )
             db.add(pi)
             inserted.append(pi)

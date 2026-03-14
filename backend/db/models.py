@@ -25,6 +25,7 @@ class RawItem(Base):
     source_name = Column(String(128), nullable=True)  # e.g. "TechCrunch", "@sama"
     language_detected = Column(String(8), nullable=True)  # "zh" | "en" | …
     fetched_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    published_at = Column(DateTime(timezone=True), nullable=True)  # source's original publication time
 
     __table_args__ = (
         Index("ix_raw_items_fetched_at", "fetched_at"),
@@ -49,6 +50,7 @@ class ProcessedItem(Base):
     source_name = Column(String(128), nullable=True)
     source_type = Column(String(32), nullable=True)
     processed_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    source_published_at = Column(DateTime(timezone=True), nullable=True)  # propagated from RawItem.published_at
 
     __table_args__ = (
         Index("ix_processed_items_score", "score"),
