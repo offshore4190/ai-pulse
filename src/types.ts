@@ -117,6 +117,15 @@ export interface MajorDeepDive {
   forums: { name: string; url: string; description: string }[];
 }
 
+/** User stats for AI literacy points and reading streak */
+export interface UserStats {
+  aiLiteracyPoints: number;
+  lastReadDate: string;  // ISO date string YYYY-MM-DD
+  currentStreakDays: number;
+  totalReadDays?: number;
+  recordedToday?: boolean;  // whether we already added daily-visit points today
+}
+
 /** No Pretending - I Use AI Too WebSocket message */
 export interface CampusVoiceMessage {
   id: string;
@@ -141,6 +150,7 @@ export type TranslationKeys = {
   interpretation: string;
   signal: string;
   action: string;
+  actionStudent?: string;
   footerDesc: string;
   product: string;
   company: string;
@@ -191,6 +201,7 @@ export type TranslationKeys = {
   indieMaker: string;
   todayActionTitle: string;
   todayActionBadge: string;
+  todayActionBadgeStudent?: string;
   dailyPromptTitle: string;
   featuredBadge: string;
   featuredSubmitHint: string;

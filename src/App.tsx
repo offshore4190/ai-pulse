@@ -28,10 +28,13 @@ import {
   ShieldCheck,
   Coins,
   Lightbulb,
-  Rocket
+  Rocket,
+  Flame,
+  Award
 } from 'lucide-react';
-import { Persona, DashboardData, Language, Discipline, AgentIntro } from './types';
+import { Persona, DashboardData, Language, Discipline, AgentIntro, UserStats } from './types';
 import { fetchDashboardData, prefetchNextData } from './services/geminiService';
+import { getUserStats, recordReadAction, addPoints } from './services/userStatsService';
 import DynamicBackground from './components/DynamicBackground';
 
 const FALLBACK_AGENTS: AgentIntro[] = [
@@ -58,6 +61,7 @@ const translations = {
     interpretation: 'Interpretation',
     signal: 'Signal',
     action: 'Action',
+    actionStudent: 'Do This Today',
     footerDesc: 'High-fidelity intelligence for the next generation of builders and backers.',
     product: 'Product',
     company: 'Company',
@@ -108,9 +112,15 @@ const translations = {
     indieMaker: 'Indie Maker',
     todayActionTitle: "Today's 1 Thing",
     todayActionBadge: 'DO THIS NOW',
+    todayActionBadgeStudent: '马上就做',
     dailyPromptTitle: "Today's Question",
     featuredBadge: 'Top Pick Today',
-    featuredSubmitHint: 'Answer the question above and get featured on the homepage'
+    featuredSubmitHint: 'Answer the question above and get featured on the homepage',
+    myProfile: 'My Profile',
+    myProfileFloat: 'My AI Literacy',
+    aiLiteracyPoints: 'AI Literacy Points',
+    continuousReadDays: 'Day Streak',
+    totalReadDays: 'Total Read Days'
   },
   zh: {
     investor: '投资人',
@@ -127,6 +137,7 @@ const translations = {
     interpretation: '深度解读',
     signal: '投资信号',
     action: '行动建议',
+    actionStudent: '今天就做',
     footerDesc: '为下一代建设者和支持者提供的高保真情报站',
     product: '产品',
     company: '公司',
@@ -177,13 +188,19 @@ const translations = {
     indieMaker: '独立开发者',
     todayActionTitle: '今天只做这1件事',
     todayActionBadge: '立刻行动',
+    todayActionBadgeStudent: '马上就做',
     dailyPromptTitle: '今日征集',
     featuredBadge: '今日最佳',
-    featuredSubmitHint: '回答上面的问题，优质投稿将上今日首页'
+    featuredSubmitHint: '回答上面的问题，优质投稿将上今日首页',
+    myProfile: '个人主页',
+    myProfileFloat: '我的 AI 素养',
+    aiLiteracyPoints: 'AI 素养积分',
+    continuousReadDays: '连续阅读天数',
+    totalReadDays: '总阅读天数'
   }
 };
 
-function CampusVoice({ t, dailyPrompt }: { t: any; language: Language; dailyPrompt?: string }) {
+function CampusVoice({ t, dailyPrompt, onPostSuccess }: { t: any; language: Language; dailyPrompt?: string; onPostSuccess?: () => void }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
@@ -241,6 +258,7 @@ function CampusVoice({ t, dailyPrompt }: { t: any; language: Language; dailyProm
         const newMsg = await res.json();
         lastTimestampRef.current = newMsg.timestamp;
         setMessages((prev) => [...prev, newMsg]);
+        onPostSuccess?.();
       }
     } catch {
       // silent fail
@@ -677,7 +695,7 @@ function TodayActionCard({ t, action }: { t: any; action: string }) {
       <div className="relative z-10 space-y-3">
         <div className="flex items-center gap-2">
           <Zap size={15} className="text-amber-600" fill="currentColor" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">{t.todayActionBadge}</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">{t.todayActionBadgeStudent ?? t.todayActionBadge}</span>
         </div>
         <h3 className="text-lg font-black text-gray-900 leading-snug max-w-xs">
           {t.todayActionTitle}
@@ -697,12 +715,24 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeepDive, setShowDeepDive] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   const t = translations[language];
+
+  const refreshUserStats = () => setUserStats(getUserStats());
 
   useEffect(() => {
     loadData();
   }, [persona, language]);
+
+  useEffect(() => {
+    refreshUserStats();
+  }, []);
+
+  useEffect(() => {
+    if (showProfile) refreshUserStats();
+  }, [showProfile]);
 
   const loadData = async () => {
     // If we already have data, don't show the full loading skeleton to make it feel faster
@@ -713,6 +743,8 @@ export default function App() {
     try {
       const result = await fetchDashboardData(persona, language);
       setData(result);
+      recordReadAction();
+      refreshUserStats();
       // If result is demo, we might want to show a small toast or notice, 
       // but not the full error card which blocks the UI.
       if (result.isDemo) {
@@ -791,16 +823,82 @@ export default function App() {
             <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
               <Search size={20} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold">
+            <button
+              onClick={() => { setShowProfile(true); refreshUserStats(); }}
+              className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold hover:ring-2 hover:ring-teal-300 transition-all"
+            >
               JD
-            </div>
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <AnimatePresence mode="wait">
-          {showDeepDive ? (
+          {showProfile ? (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-8"
+            >
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setShowProfile(false)}
+                  className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors font-medium"
+                >
+                  <ArrowLeft size={20} />
+                  {t.backToDashboard}
+                </button>
+                <h2 className="text-2xl font-bold tracking-tight">{t.myProfile}</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-amber-100 text-amber-600 rounded-2xl">
+                      <Award size={28} />
+                    </div>
+                    <h3 className="text-lg font-bold">{t.aiLiteracyPoints}</h3>
+                  </div>
+                  <p className="text-4xl font-black text-amber-600 tabular-nums">
+                    {(userStats ?? getUserStats()).aiLiteracyPoints}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {language === 'zh' ? '每日访问、阅读文章、参与社区可获得积分' : 'Earn points by daily visits, reading articles, and community participation'}
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-rose-100 text-rose-600 rounded-2xl">
+                      <Flame size={28} />
+                    </div>
+                    <h3 className="text-lg font-bold">{t.continuousReadDays}</h3>
+                  </div>
+                  <p className="text-4xl font-black text-rose-600 tabular-nums">
+                    {(userStats ?? getUserStats()).currentStreakDays}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {language === 'zh' ? '天连续阅读' : ' days streak'}
+                  </p>
+                  {(userStats ?? getUserStats()).totalReadDays !== undefined && (userStats ?? getUserStats()).totalReadDays! > 0 && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {t.totalReadDays}: {(userStats ?? getUserStats()).totalReadDays}
+                    </p>
+                  )}
+                </motion.div>
+              </div>
+            </motion.div>
+          ) : showDeepDive ? (
             <motion.div
               key="deep-dive"
               initial={{ opacity: 0, x: 20 }}
@@ -1064,7 +1162,7 @@ export default function App() {
                       <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <p className="text-[10px] uppercase font-bold text-teal-400">
-                            {persona === 'investor' ? t.signal : t.action}
+                            {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}
                           </p>
                           {data?.todaySignal.timestamp && (
                             <span className="text-[10px] text-white/40 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
@@ -1075,7 +1173,11 @@ export default function App() {
                         </p>
                       </div>
                       <button 
-                        onClick={() => window.open(data?.todaySignal.url, '_blank')}
+                        onClick={() => {
+                          addPoints(5);
+                          refreshUserStats();
+                          window.open(data?.todaySignal.url, '_blank');
+                        }}
                         className="bg-teal-500 hover:bg-teal-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center"
                       >
                         {t.readAnalysis}
@@ -1277,7 +1379,7 @@ export default function App() {
                           <div className="bg-gray-50 p-3 rounded-xl border-l-2 border-teal-500">
                             <p className="text-xs font-medium text-gray-700">
                               <span className="font-bold text-teal-600 uppercase mr-2">
-                                {persona === 'investor' ? t.signal : t.action}:
+                                {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}:
                               </span>
                               {item.takeaway}
                             </p>
@@ -1517,7 +1619,12 @@ export default function App() {
 
             {/* No Pretending - I Use AI Too - Student Only */}
             {persona === 'student' && (
-              <CampusVoice t={t} language={language} dailyPrompt={data?.dailyPrompt} />
+              <CampusVoice
+                t={t}
+                language={language}
+                dailyPrompt={data?.dailyPrompt}
+                onPostSuccess={() => { addPoints(3); refreshUserStats(); }}
+              />
             )}
           </div>
         </div>
@@ -1574,6 +1681,28 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Floating stats widget - only on dashboard view */}
+      {!showDeepDive && !showProfile && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          onClick={() => { setShowProfile(true); refreshUserStats(); }}
+          className="fixed bottom-6 right-6 z-40 px-4 py-3 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-3"
+        >
+          <div className="flex items-center gap-2">
+            <Award size={18} className="text-amber-600" />
+            <span className="text-sm font-bold tabular-nums">{(userStats ?? getUserStats()).aiLiteracyPoints}</span>
+          </div>
+          <span className="text-gray-300">|</span>
+          <div className="flex items-center gap-2">
+            <Flame size={18} className="text-rose-500" />
+            <span className="text-sm font-bold tabular-nums">{(userStats ?? getUserStats()).currentStreakDays}</span>
+            <span className="text-[10px] text-gray-500">{t.continuousReadDays}</span>
+          </div>
+          <ChevronRight size={14} className="text-gray-400" />
+        </motion.button>
+      )}
     </div>
   );
 }

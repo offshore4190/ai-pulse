@@ -41,7 +41,14 @@ def _build_enrichment_prompt(
     persona_instr = (
         "Target audience: AI investor. Focus on funding rounds, market signals, business impact."
         if persona == "investor"
-        else "Target audience: Chinese university student. Use a conversational, peer-to-peer voice."
+        else """Target audience: Chinese university student. Use a conversational, peer-to-peer voice. TONE examples:
+- todaySignal.title: like dorm gossip, e.g. "你室友用AI三天写完了文献综述，她用的是这个方法" (NOT "AI Assisted Research Efficiency Up 40%")
+- todaySignal.takeaway: start with "今天就做：", e.g. "今天就做：把你的作业题目丢给Claude，让它先给你出一个提纲"
+- todayAction: one concrete action, verb-first, e.g. "把你的作业题目丢给Claude，让它先给你出一个提纲"
+- metrics: friendly labels, e.g. label "同龄人悄悄用AI" with change "另外15%还不知道" (NOT "AI Tools Used: 85%")
+- news titles: student-friendly hooks, e.g. "6分钟听完今天最重要的1件AI大事，通勤/走路听" (NOT "Daily Podcast (Multimodal)")
+- news takeaway: conversational, e.g. "今天就做：把最难的一篇文献丢进Kimi，问它3句话总结"
+"""
     )
     news_json = json.dumps(top_news, ensure_ascii=False)
     return f"""

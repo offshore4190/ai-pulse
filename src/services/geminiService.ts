@@ -148,7 +148,11 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
     14. TONE (Student Only): All student-facing text MUST use a conversational, peer-to-peer voice — write like a smart friend sharing gossip, NOT like a journalist or academic.
         - peerStory.title: MUST be first-person and hook-driven, e.g. "我用 Kimi 一晚上写完了文献综述——方法在这里" or "室友靠这个工具拿到了实习 offer，我问了她全套流程"
         - peerStory.takeaway: MUST begin with "你今天就能试" or "立刻可以做的一件事：" 
-        - todaySignal.title (student): Should feel like overheard gossip in a dorm, NOT a press headline. E.g. "你室友在用AI帮自己做PPT，你还在手动排版？" instead of "AI Tools Improve Presentation Efficiency by 40%"
+        - todaySignal.title (student): Should feel like overheard gossip in a dorm, NOT a press headline. E.g. "你室友用AI三天写完了文献综述，她用的是这个方法" instead of "AI Assisted Research Efficiency Up 40%"
+        - todaySignal.takeaway (student): Start with "今天就做：" and give one concrete action. E.g. "今天就做：把你的作业题目丢给Claude，让它先给你出一个提纲" instead of "Master prompt engineering for academic success"
+        - metrics (student): Use friendly, peer-oriented labels. Instead of "AI Tools Used: 85%", use label "同龄人悄悄用AI" with value "85%" and change "另外15%还不知道"
+        - news[].title (student): Rewrite as student-friendly hooks. E.g. "6分钟听完今天最重要的1件AI大事，通勤/走路听" instead of "Daily Podcast (Multimodal)"
+        - news[].takeaway (student): Conversational, action-oriented. E.g. "今天就做：把你的作业题目丢给Claude..." instead of "行动建议：掌握提示词工程..."
         - todayAction: ONE specific action a student can complete TODAY, starting with a verb, ≤30 Chinese characters or ≤20 English words. E.g. "打开 Kimi，把你最难的一篇文献丢进去，问它用3句话总结核心结论"
         - dailyPrompt: A curiosity-triggering daily question that makes students want to share. E.g. "今天你用 AI 省了多少时间？说个具体的数字" or "你发现过 AI 最让你惊喜的一个用法是什么？"
 
@@ -429,21 +433,21 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
     return {
       isDemo: false,
       todaySignal: {
-        title: isZh ? "AI 辅助科研效率提升 40%" : "AI-Assisted Research Efficiency Up 40%",
+        title: isZh ? "你室友用AI帮自己做PPT，你还在手动排版？" : "Your roommate uses AI for slides—are you still doing it manually?",
         description: isZh ? "最新研究表明，使用 AI 智能体进行文献综述和实验设计的学生，其产出质量显著提高。" : "Latest studies show students using AI agents for literature review and experimental design see significant quality gains.",
-        takeaway: isZh ? "掌握提示词工程将成为未来学术研究的核心竞争力。" : "Mastering prompt engineering will become a core competency for future academic research.",
+        takeaway: isZh ? "今天就做：把你的作业题目丢给Claude，让它先给你出一个提纲" : "Do this today: Drop your assignment into Claude and ask it to outline first",
         url: "https://github.blog/ai-and-ml/"
       },
       metrics: [
-        { label: "AI Tools Used", value: "85%", change: "+5%", isPositive: true },
+        { label: isZh ? "同龄人悄悄用AI" : "Peers using AI", value: "85%", change: isZh ? "另外15%还不知道" : "15% haven't tried yet", isPositive: true },
         { label: "Research Papers", value: "1.2k", change: "+200", isPositive: true },
         { label: "Job Openings", value: "45k", change: "+15%", isPositive: true },
         { label: "Skill Demand", value: "Python", change: "High", isPositive: true },
         { label: "Learning Rate", value: "Fast", change: "N/A", isPositive: true }
       ],
       news: [
-        { id: "n1", type: "product", title: "GitHub Copilot Gets Smarter Context Windows", context: "GitHub expands Copilot's context window and adds multi-file editing capabilities for complex codebases.", source: "GitHub Blog", takeaway: "Lower barrier to building complex apps with AI assistance.", timestamp: "1d ago", url: "https://github.blog/ai-and-ml/generative-ai/" },
-        { id: "n2", type: "product", title: "GitHub Copilot Workspace", context: "A new environment for building entire features with natural language.", source: "GitHub Blog", takeaway: "The barrier to building complex apps is disappearing.", timestamp: "3d ago", url: "https://github.blog/" }
+        { id: "n1", type: "product", title: isZh ? "6分钟听完今天最重要的1件AI大事，通勤/走路听" : "6 min to catch today's biggest AI news—listen on your commute", context: "GitHub expands Copilot's context window and adds multi-file editing capabilities for complex codebases.", source: "GitHub Blog", takeaway: isZh ? "今天就做：把最难的一篇文献丢进Kimi，问它3句话总结" : "Do this today: Drop your hardest paper into Kimi and ask for a 3-sentence summary", timestamp: "1d ago", url: "https://github.blog/ai-and-ml/generative-ai/" },
+        { id: "n2", type: "product", title: isZh ? "用自然语言写代码，室友已经上手了" : "Write code with plain language—your roommate's already doing it", context: "A new environment for building entire features with natural language.", source: "GitHub Blog", takeaway: isZh ? "今天就做：把你的作业题目丢给Claude，先要个提纲" : "Do this today: Give Claude your assignment and ask for an outline first", timestamp: "3d ago", url: "https://github.blog/" }
       ],
       socialSignals: [],
       sideHustles: [
@@ -466,14 +470,14 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         },
         {
           id: "sh2",
-          title: isZh ? "AI辅助的1v1辅导" : "AI-Assisted 1v1 Tutoring",
+          title: isZh ? "用AI当助教，你只负责1v1答疑" : "AI-Assisted 1v1 Tutoring",
           income: isZh ? "¥150-300/小时" : "$30-60/hr",
           description: isZh ? "用AI帮你备课、生成练习题、做学习计划。你专注于1v1辅导和答疑。效率比传统家教高3倍，可以同时带更多学生。" : "Use AI to help you prepare lessons, generate exercises, and create study plans. Focus on 1v1 tutoring and Q&A.",
           steps: isZh ? [
             "选一门你擅长的课，用Claude/GPT生成一套教案",
             "在小红书/朋友圈发'AI辅助学习法'的帖子引流",
             "每次课后用AI生成针对性练习题发给学生",
-            "使用AI实时总结学生的薄弱点，调整教学进度"
+            "用AI总结学生薄弱点，调整教学进度"
           ] : [
             "Pick a subject you're good at, use AI to generate lesson plans",
             "Post 'AI-Assisted Learning' content on social media to attract students",
@@ -483,7 +487,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
         },
         {
           id: "sh3",
-          title: isZh ? "AI提示词工程师/顾问" : "AI Prompt Engineer/Consultant",
+          title: isZh ? "帮企业写提示词，他们不会写你来" : "AI Prompt Engineer/Consultant",
           income: isZh ? "¥3000-8000/项目" : "$500-1500/project",
           description: isZh ? "很多传统企业想用AI但不知道怎么写提示词。你帮他们定制Prompt，优化工作流，或者搭建简单的AI Agent。" : "Many traditional businesses want to use AI but don't know how to write prompts. You help them customize prompts and optimize workflows.",
           steps: isZh ? [
@@ -506,7 +510,7 @@ function getFallbackData(persona: Persona, language: Language): DashboardData {
           school: "Stanford",
           status: isZh ? "辍学创业" : "Dropout Founders"
         },
-        title: isZh ? "这对兄弟在Stanford读书时开始做Golpo" : "These brothers started Golpo while at Stanford",
+        title: isZh ? "这对兄弟在Stanford读书时开始做Golpo，辍学前就融了410万" : "These brothers started Golpo while at Stanford",
         content: isZh ? "一个能把文档自动变成动画解说视频的AI工具。他们发现教授和企业都需要把复杂内容变成易懂的视频，但传统方式太贵太慢。现在他们已经辍学全职做，刚融了$410万种子轮。" : "An AI tool that automatically turns documents into animated explainer videos. They found professors and businesses need to turn complex content into easy-to-understand videos.",
         funding: isZh ? "融了$410万" : "Raised $4.1M",
         takeaway: isZh ? "找到'贵且慢'的事情，用AI让它变得'便宜且快'。视频制作就是典型例子。" : "Find things that are 'expensive and slow', use AI to make them 'cheap and fast'."
