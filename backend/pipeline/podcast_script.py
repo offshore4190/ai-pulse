@@ -31,6 +31,7 @@ def build_podcast_prompt(
     persona: str,
     language: str,
     voice_tone: str,
+    host_name: str = "小智",
 ) -> str:
     """Build the Gemini prompt to convert DashboardData into PodcastScript."""
     dashboard_json = json.dumps(dashboard, ensure_ascii=False, indent=2)
@@ -45,7 +46,24 @@ def build_podcast_prompt(
     )
     tone_desc = VOICE_TONE_DESCRIPTIONS.get(voice_tone, VOICE_TONE_DESCRIPTIONS["sunny"])
 
-    return f"""You are an AI podcast script writer. Convert the following daily AI intelligence dashboard into a podcast-style script.
+    # Intro format: 禁止「欢迎收听」，使用固定句式
+    intro_zh = f'这是你的今日份「第一杯」，我是 {host_name}，建议趁热饮用。'
+    intro_en = f"This is your first cup of today. I'm {host_name}. Drink it while it's hot."
+    intro_rule = (
+        f"- **INTRO (mandatory)**: Must use exactly: {intro_zh}"
+        if language == "zh"
+        else f"- **INTRO (mandatory)**: Must use exactly: {intro_en}"
+    )
+    intro_rule += " Do NOT say 「欢迎收听」 or \"Welcome to listen\"."
+
+    # Student mode outro: 必须包含「今日只做一件事」
+    student_outro = ""
+    if persona == "student":
+        student_outro = """
+- **OUTRO (Student only, mandatory)**: The outro MUST end with the 「今日只做一件事」 action instruction. Use the concrete action from the dashboard's todayAction field. Format: "今日只做一件事：{action}" (Chinese) or "Today's one thing: {action}" (English).
+"""
+
+    return f"""You are an AI podcast script writer. Convert the following daily AI intelligence dashboard into a ~60-second broadcast-style script.
 
 {lang_instr}
 {persona_instr}
@@ -58,27 +76,31 @@ Dashboard data (JSON):
 Generate ONLY a valid JSON object with this exact structure (no markdown fences):
 {{
   "title": "string - podcast title in target language",
-  "intro": "string - brief welcome (1-2 sentences)",
+  "intro": "string - opening using the mandatory format below",
   "chapters": [
-    {{ "id": "string (kebab-case)", "title": "string", "content": "string - narrative paragraph(s) for this section", "order": 0 }},
+    {{ "id": "string (kebab-case)", "title": "string", "content": "string - narrative with rhythm markers", "order": 0 }},
     ...
   ],
-  "outro": "string - brief sign-off (1-2 sentences)",
+  "outro": "string - sign-off (Student: must include 今日只做一件事 action)",
   "generatedAt": "ISO8601 string"
 }}
 
 Rules:
+{intro_rule}
+- **Duration**: The entire script must be ~60 seconds when read aloud. Prioritize: todaySignal, key metrics, 1-2 news items, todayAction (Student). Condense or omit rest.
 - Each chapter id should be unique and kebab-case (e.g. today-signal, metrics, news).
 - Chapter order must follow: todaySignal -> metrics -> news -> [persona-specific] -> majorInsights -> agentIntros.
-- Content in each chapter should be narrative, podcast-ready prose (not bullet lists unless appropriate).
-- **Chapter transitions**: Every chapter MUST begin with a brief transition phrase that connects to the previous section (e.g. "接下来聊聊..." / "说到融资动态..." / "Now let's look at..." / "On the deal front..."). The first chapter may start without one if intro leads naturally.
-- **Oral style**: Use short sentences, conversational phrasing. Avoid long subordinate clauses and written-language patterns.
-- **Pacing**: intro = 1-2 short welcoming sentences; outro = 1-2 natural sign-off sentences.
+- **Rhythm markers**: Use short sentences. At section transitions and key moments, insert [停顿] or [语气上扬] where appropriate. Example: "先说说今天的重磅。[停顿] OpenAI 发布了新模型。[语气上扬] 这对行业意味着什么？" / "First up.[停顿] Company X unveiled a new model.[语气上扬] What does that mean?"
+- Content in each chapter: narrative, podcast-ready prose (not bullet lists). Include [停顿] between major points.
+- **Chapter transitions**: Every chapter MUST begin with a brief transition phrase (e.g. "接下来聊聊..." / "说到融资动态..." / "Now let's look at...").
+- **Oral style**: Short sentences, conversational phrasing. Avoid long subordinate clauses.
 - Include generatedAt as current ISO timestamp.
 - Respond with ONLY the JSON object, no other text.
+{student_outro}
 
-Example tone (Chinese): "大家好，欢迎收听。先说说今天的重磅——某某公司发布了新模型。接下来看看数据，核心指标这边…"
-Example tone (English): "Welcome back. First up: today's big move—Company X unveiled a new model. Now for the numbers…"
+Example intro (Chinese): {intro_zh}
+Example intro (English): {intro_en}
+Example content with rhythm: "先说说今天的重磅。[停顿] 某某公司发布了新模型。[语气上扬] 这对行业意味着什么？接下来看看数据。[停顿]"
 """
 
 
@@ -87,6 +109,7 @@ def generate_podcast_script(
     persona: str,
     language: str,
     voice_tone: str,
+    host_name: str = "小智",
 ) -> Optional[dict]:
     """
     Call Gemini to generate a PodcastScript from DashboardData.
@@ -98,7 +121,7 @@ def generate_podcast_script(
 
     try:
         client = GenAIClient(api_key=GEMINI_API_KEY)
-        prompt = build_podcast_prompt(dashboard, persona, language, voice_tone)
+        prompt = build_podcast_prompt(dashboard, persona, language, voice_tone, host_name)
 
         response = client.models.generate_content(
             model=PODCAST_MODEL,

@@ -837,6 +837,8 @@ export default function App() {
   const [showPodcast, setShowPodcast] = useState(false);
   const [expandNews, setExpandNews] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [selectedMajorIndex, setSelectedMajorIndex] = useState(0);
+  const [selectedAgentIndex, setSelectedAgentIndex] = useState(0);
 
   const t = translations[language];
 
@@ -1297,7 +1299,86 @@ export default function App() {
                   </h3>
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Mobile: bookmark layout */}
+              <div className="md:hidden flex gap-0 rounded-2xl overflow-hidden border border-black/5 shadow-sm bg-white">
+                {loading ? (
+                  <>
+                    <div className="flex flex-col border-r border-black/5 bg-gray-50/50 w-16 py-2">
+                      {[1, 2, 3, 4].map((i) => <div key={i} className="h-8 mx-2 mb-1 rounded bg-gray-200 animate-pulse" />)}
+                    </div>
+                    <div className="flex-1 h-48 animate-pulse m-4 rounded bg-gray-100" />
+                  </>
+                ) : (() => {
+                  const insights = data?.majorInsights || [];
+                  if (insights.length === 0) return null;
+                  const idx = Math.min(selectedMajorIndex, insights.length - 1);
+                  const insight = insights[idx];
+                  return (
+                    <>
+                      <div className="flex flex-col border-r border-black/5 bg-gray-50/50">
+                        {insights.map((m, i) => (
+                          <button
+                            key={m.discipline}
+                            onClick={() => setSelectedMajorIndex(i)}
+                            className={`px-3 py-3 text-xs font-bold uppercase tracking-wider whitespace-nowrap text-left transition-colors border-l-2 ${
+                              i === idx
+                                ? 'bg-white border-amber-500 text-amber-700 shadow-sm'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                            }`}
+                          >
+                            {t[m.discipline]}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <AnimatePresence mode="wait">
+                          <motion.a
+                            href={insight.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            key={insight.discipline}
+                            initial={{ opacity: 0, x: 8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -8 }}
+                            transition={{ duration: 0.2 }}
+                            className="block p-5 group relative overflow-hidden"
+                          >
+                            <div className={`absolute top-0 right-0 w-20 h-20 blur-2xl -mr-10 -mt-10 opacity-20 ${
+                              insight.discipline === 'humanities' ? 'bg-indigo-500' :
+                              insight.discipline === 'science' ? 'bg-[#4ECDC4]' :
+                              insight.discipline === 'engineering' ? 'bg-amber-500' : 'bg-rose-500'
+                            }`} />
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className={`p-1.5 rounded-lg ${
+                                insight.discipline === 'humanities' ? 'bg-indigo-50 text-indigo-600' :
+                                insight.discipline === 'science' ? 'bg-teal-50 text-teal-600' :
+                                insight.discipline === 'engineering' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
+                              }`}>
+                                {insight.discipline === 'humanities' && <BookOpen size={16} />}
+                                {insight.discipline === 'science' && <FlaskConical size={16} />}
+                                {insight.discipline === 'engineering' && <Settings size={16} />}
+                                {insight.discipline === 'business' && <PieChart size={16} />}
+                              </div>
+                              <span className="font-bold text-[10px] uppercase tracking-wider">{t[insight.discipline]}</span>
+                            </div>
+                            <h4 className="text-base font-bold mb-2 group-hover:text-teal-600 transition-colors">{insight.title}</h4>
+                            <p className="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-3">{insight.content}</p>
+                            <div className="pt-3 border-t border-black/5">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.futureTrend}</span>
+                                {insight.timestamp && <span className="text-[9px] text-gray-500 tabular-nums">{insight.timestamp}</span>}
+                              </div>
+                              <p className="text-xs font-medium text-gray-700 italic">{insight.trend}</p>
+                            </div>
+                          </motion.a>
+                        </AnimatePresence>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+              {/* Desktop: grid layout */}
+              <div className="hidden md:grid grid-cols-2 gap-4">
                 {loading ? (
                   Array(4).fill(0).map((_, i) => (
                     <div key={i} className="h-48 bg-white rounded-3xl animate-pulse border border-black/5" />
@@ -1367,7 +1448,100 @@ export default function App() {
                   {t.agentDirectory}
                 </h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {(() => {
+                const agents = data?.agentIntros || [];
+                const fallbackAgents = language === 'zh' ? FALLBACK_AGENTS_ZH : FALLBACK_AGENTS_EN;
+                const displayed = agents.length >= 3
+                  ? agents.slice(0, 3)
+                  : [...agents, ...fallbackAgents.filter(f => !agents.find(a => a.name === f.name))].slice(0, 3);
+                return displayed;
+              })().length > 0 && (
+              <>
+              {/* Mobile: bookmark layout */}
+              <div className="md:hidden flex gap-0 rounded-2xl overflow-hidden border border-black/5 shadow-sm bg-white">
+                {loading ? (
+                  <>
+                    <div className="flex flex-col border-r border-black/5 bg-gray-50/50 w-16 py-2">
+                      {[1, 2, 3].map((i) => <div key={i} className="h-8 mx-2 mb-1 rounded bg-gray-200 animate-pulse" />)}
+                    </div>
+                    <div className="flex-1 h-64 animate-pulse m-4 rounded bg-gray-100" />
+                  </>
+                ) : (() => {
+                  const displayed = (() => {
+                    const agents = data?.agentIntros || [];
+                    const fallbackAgents = language === 'zh' ? FALLBACK_AGENTS_ZH : FALLBACK_AGENTS_EN;
+                    return agents.length >= 3
+                      ? agents.slice(0, 3)
+                      : [...agents, ...fallbackAgents.filter(f => !agents.find(a => a.name === f.name))].slice(0, 3);
+                  })();
+                  if (displayed.length === 0) return null;
+                  const idx = Math.min(selectedAgentIndex, displayed.length - 1);
+                  const agent = displayed[idx];
+                  return (
+                    <>
+                      <div className="flex flex-col border-r border-black/5 bg-gray-50/50">
+                        {displayed.map((a, i) => (
+                          <button
+                            key={a.name}
+                            onClick={() => setSelectedAgentIndex(i)}
+                            className={`px-3 py-3 text-xs font-bold whitespace-nowrap text-left transition-colors border-l-2 ${
+                              i === idx
+                                ? 'bg-white border-blue-500 text-blue-700 shadow-sm'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                            }`}
+                          >
+                            {a.name}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={agent.name}
+                            initial={{ opacity: 0, x: 8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -8 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col p-5 flex-grow"
+                          >
+                            <div className="flex justify-between items-start mb-4">
+                              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 font-bold text-xl">
+                                {agent.name[0]}
+                              </div>
+                              <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-1 rounded-full uppercase tracking-wider">
+                                {agent.category}
+                              </span>
+                            </div>
+                            <h4 className="text-lg font-bold mb-2">{agent.name}</h4>
+                            <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-grow">{agent.description}</p>
+                            <div className="space-y-2 mb-6">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.agentFeatures}</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {agent.features.map((feature) => (
+                                  <span key={feature} className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-medium">
+                                    {feature}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <a 
+                              href={agent.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-3 bg-black text-white rounded-xl text-center text-sm font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 mt-auto"
+                            >
+                              {t.visitSite}
+                              <ExternalLink size={14} />
+                            </a>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+              {/* Desktop: grid layout */}
+              <div className="hidden md:grid grid-cols-3 gap-4">
                 {loading ? (
                   Array(3).fill(0).map((_, i) => (
                     <div key={i} className="h-64 bg-white rounded-3xl animate-pulse border border-black/5" />
@@ -1424,6 +1598,8 @@ export default function App() {
                   ))
                 )}
               </div>
+              </>
+              )}
             </section>
 
             {/* News Feed (投研黑咖) — investor only; student content is in Heavy Hitter */}

@@ -21,6 +21,25 @@ const VOICE_TONE_OPTIONS: VoiceToneOption[] = [
   { value: 'professional', label: '专业', labelEn: 'Professional', icon: '💼', desc: '简洁、信息密度高' },
 ];
 
+/** Remove rhythm markers before TTS so browser won't read them aloud. */
+function stripForTTS(text: string): string {
+  return text.replace(/\s*\[(?:停顿|语气上扬|语气下沉)\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Split text by [停顿] for real pauses between segments. */
+function splitByPause(text: string): string[] {
+  return text.split(/\s*\[停顿\]\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
+/** Get TTS-ready chunks: split by pause, strip markers, filter empty. */
+function getTTSChunks(text: string): { text: string; delayBefore: number }[] {
+  const parts = splitByPause(text);
+  return parts.map((p, i) => ({
+    text: stripForTTS(p),
+    delayBefore: i === 0 ? 0 : 600,
+  })).filter((c) => c.text.length > 0);
+}
+
 const FALLBACK_TRANSITIONS: Record<string, { zh: string; en: string }> = {
   'today-signal': { zh: '先说说今天的重磅。', en: "First up—today's heavy hitter." },
   metrics: { zh: '接下来看看数据。', en: "Now let's look at the numbers." },
@@ -57,7 +76,7 @@ function buildFallbackScript(
   chapters.push({
     id: 'today-signal',
     title: zh ? '今日重磅' : 'Heavy Hitter',
-    content: `${t('today-signal')}${data.todaySignal.title}。${data.todaySignal.description}。${zh ? '行动建议：' : 'Action: '}${data.todaySignal.takeaway}`,
+    content: `${t('today-signal')}[停顿]${data.todaySignal.title}。${data.todaySignal.description}。${zh ? '行动建议：' : 'Action: '}${data.todaySignal.takeaway}`,
     order: order++,
   });
 
@@ -66,7 +85,7 @@ function buildFallbackScript(
     chapters.push({
       id: 'metrics',
       title: zh ? '核心指标' : 'Key Metrics',
-      content: `${t('metrics')}${parts.join(zh ? '；' : '; ')}`,
+      content: `${t('metrics')}[停顿]${parts.join(zh ? '；' : '; ')}`,
       order: order++,
     });
   }
@@ -79,7 +98,7 @@ function buildFallbackScript(
     chapters.push({
       id: 'news',
       title: zh ? '行业快讯' : 'News',
-      content: `${t('news')}${parts.join(zh ? '；' : ' ')}`,
+      content: `${t('news')}[停顿]${parts.join(zh ? '；' : ' ')}`,
       order: order++,
     });
   }
@@ -163,11 +182,23 @@ function buildFallbackScript(
     });
   }
 
+  const intro = zh
+    ? "这是你的今日份「第一杯」，我是小智，建议趁热饮用。"
+    : "This is your first cup of today. I'm XiaoZhi. Drink it while it's hot.";
+  const outro =
+    persona === "student" && data.todayAction
+      ? zh
+        ? `今日只做一件事：${data.todayAction}`
+        : `Today's one thing: ${data.todayAction}`
+      : zh
+        ? "以上就是今天的全部内容，感谢收听。"
+        : "That's all for today. Thanks for listening.";
+
   return {
     title: zh ? '今日AI日报' : "Today's AI Pulse",
-    intro: zh ? '大家好，欢迎收听今天的 AI 日报。' : "Welcome to today's AI pulse.",
+    intro,
     chapters,
-    outro: zh ? '以上就是今天的全部内容，感谢收听。' : "That's all for today. Thanks for listening.",
+    outro,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -236,23 +267,31 @@ export default function PodcastDailyView({
       setIsPlaying(false);
     }
 
-    const segments: { id: string; text: string }[] = [];
-    if (script.intro?.trim()) segments.push({ id: 'intro', text: script.intro });
+    const rawSegments: { id: string; text: string }[] = [];
+    if (script.intro?.trim()) rawSegments.push({ id: 'intro', text: script.intro });
     script.chapters.forEach((ch) => {
-      if (ch.content?.trim()) segments.push({ id: ch.id, text: ch.content });
+      if (ch.content?.trim()) rawSegments.push({ id: ch.id, text: ch.content });
     });
-    if (script.outro?.trim()) segments.push({ id: 'outro', text: script.outro });
+    if (script.outro?.trim()) rawSegments.push({ id: 'outro', text: script.outro });
 
-    if (segments.length === 0) return;
+    if (rawSegments.length === 0) return;
 
-    segmentQueueRef.current = segments;
+    const ttsQueue: { id: string; text: string; delayBefore: number }[] = [];
+    rawSegments.forEach((seg) => {
+      const chunks = getTTSChunks(seg.text);
+      chunks.forEach((c) => ttsQueue.push({ id: seg.id, text: c.text, delayBefore: c.delayBefore }));
+    });
+
+    if (ttsQueue.length === 0) return;
+
+    segmentQueueRef.current = ttsQueue;
     queueIndexRef.current = 0;
     const lang = language === 'zh' ? 'zh-CN' : 'en-US';
 
     const speakNext = () => {
       const idx = queueIndexRef.current;
-      const segs = segmentQueueRef.current;
-      if (idx >= segs.length || !mountedRef.current) {
+      const queue = segmentQueueRef.current;
+      if (idx >= queue.length || !mountedRef.current) {
         if (mountedRef.current) {
           setIsPlaying(false);
           setPlayingSegmentId(null);
@@ -260,22 +299,31 @@ export default function PodcastDailyView({
         return;
       }
 
-      const seg = segs[idx];
-      setPlayingSegmentId(seg.id);
+      const item = queue[idx];
+      setPlayingSegmentId(item.id);
       setIsPlaying(true);
-      document.getElementById(seg.id === 'intro' ? 'segment-intro' : seg.id === 'outro' ? 'segment-outro' : `chapter-${seg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById(item.id === 'intro' ? 'segment-intro' : item.id === 'outro' ? 'segment-outro' : `chapter-${item.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      const u = new SpeechSynthesisUtterance(seg.text);
-      u.lang = lang;
-      u.onend = () => {
-        queueIndexRef.current += 1;
-        speakNext();
+      const doSpeak = () => {
+        if (!mountedRef.current || queueIndexRef.current >= queue.length) return;
+        const u = new SpeechSynthesisUtterance(item.text);
+        u.lang = lang;
+        u.onend = () => {
+          queueIndexRef.current += 1;
+          speakNext();
+        };
+        u.onerror = () => {
+          queueIndexRef.current += 1;
+          speakNext();
+        };
+        synth.speak(u);
       };
-      u.onerror = () => {
-        queueIndexRef.current += 1;
-        speakNext();
-      };
-      synth.speak(u);
+
+      if (item.delayBefore > 0) {
+        setTimeout(doSpeak, item.delayBefore);
+      } else {
+        doSpeak();
+      }
     };
 
     speakNext();

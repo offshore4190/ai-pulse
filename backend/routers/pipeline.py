@@ -77,6 +77,7 @@ async def get_podcast_script(
     voice_tone: Literal["youth", "middle", "elder", "gentle", "sunny", "professional"] = Query(
         "sunny", alias="voiceTone"
     ),
+    host_name: Optional[str] = Query(None, description="Host name for intro, e.g. 小智 / XiaoZhi"),
     date_str: Optional[str] = Query(None, description="YYYY-MM-DD, defaults to today"),
     db: Session = Depends(get_db),
 ):
@@ -110,7 +111,8 @@ async def get_podcast_script(
     else:
         dashboard = snapshot.snapshot_json
 
-    script = generate_podcast_script(dashboard, persona, language, voice_tone)
+    host = host_name or ("小智" if language == "zh" else "XiaoZhi")
+    script = generate_podcast_script(dashboard, persona, language, voice_tone, host)
     if script is None:
         raise HTTPException(
             status_code=503,
