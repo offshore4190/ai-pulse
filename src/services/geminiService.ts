@@ -105,28 +105,36 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
         - majorDeepDive.papers[]: ONLY section permitted to use arxiv.org, OpenReview, or Nature paper links.
         - majorInsights[]: Use official research blog posts only. NO raw arxiv links.
     13. KEYWORD WEIGHTING: When searching for content, PRIORITIZE topics around: product launch, release, use case, tutorial, trending, revenue, funding, partnership, demo. DEPRIORITIZE: methodology, abstract, mathematical proof, theoretical framework, ablation study.
+    14. TONE (Student Only): All student-facing text MUST use a conversational, peer-to-peer voice — write like a smart friend sharing gossip, NOT like a journalist or academic.
+        - peerStory.title: MUST be first-person and hook-driven, e.g. "我用 Kimi 一晚上写完了文献综述——方法在这里" or "室友靠这个工具拿到了实习 offer，我问了她全套流程"
+        - peerStory.takeaway: MUST begin with "你今天就能试" or "立刻可以做的一件事：" 
+        - todaySignal.title (student): Should feel like overheard gossip in a dorm, NOT a press headline. E.g. "你室友在用AI帮自己做PPT，你还在手动排版？" instead of "AI Tools Improve Presentation Efficiency by 40%"
+        - todayAction: ONE specific action a student can complete TODAY, starting with a verb, ≤30 Chinese characters or ≤20 English words. E.g. "打开 Kimi，把你最难的一篇文献丢进去，问它用3句话总结核心结论"
+        - dailyPrompt: A curiosity-triggering daily question that makes students want to share. E.g. "今天你用 AI 省了多少时间？说个具体的数字" or "你发现过 AI 最让你惊喜的一个用法是什么？"
 
     JSON Schema:
     {
       "isBreakingNews": bool,
-      "todaySignal": { "title": "str", "description": "str", "takeaway": "str", "url": "str" },
+      "todaySignal": { "title": "str", "description": "str", "takeaway": "str", "url": "str", "timestamp": "str" },
       "metrics": [ { "label": "str", "value": "str", "change": "str", "isPositive": bool } ],
       "news": [ { "id": "str", "type": "product|funding|policy|tech|research", "title": "str", "context": "str", "source": "str", "takeaway": "str", "timestamp": "str", "url": "str" } ],
-      "socialSignals": [ { "id": "str", "author": { "name": "str", "handle": "str", "avatar": "str", "role": "str", "followers": "str" }, "content": "str", "interpretation": "str", "url": "str" } ],
-      "deals": [ { "company": "str", "stage": "str", "description": "str", "investors": ["str"], "amount": "str", "url": "str" } ],
+      "socialSignals": [ { "id": "str", "author": { "name": "str", "handle": "str", "avatar": "str", "role": "str", "followers": "str" }, "content": "str", "interpretation": "str", "timestamp": "str", "url": "str" } ],
+      "deals": [ { "company": "str", "stage": "str", "description": "str", "investors": ["str"], "amount": "str", "timestamp": "str", "url": "str" } ],
       "sideHustles": [ { "id": "str", "title": "str", "income": "str", "description": "str", "steps": ["str"] } ],
-      "peerStory": { "author": { "name": "str", "avatar": "str", "school": "str", "status": "str" }, "title": "str", "content": "str", "funding": "str", "takeaway": "str" },
-      "soloEntrepreneurs": [ { "id": "str", "name": "str", "role": "str", "avatar": "str", "project": "str", "revenue": "str", "stack": ["str"], "insight": "str", "url": "str" } ],
+      "peerStory": { "author": { "name": "str", "avatar": "str", "school": "str", "status": "str" }, "title": "str", "content": "str", "funding": "str", "takeaway": "str", "timestamp": "str" },
+      "soloEntrepreneurs": [ { "id": "str", "name": "str", "role": "str", "avatar": "str", "project": "str", "revenue": "str", "stack": ["str"], "insight": "str", "url": "str", "timestamp": "str" } ],
       "topics": [ { "name": "str", "status": "high|rising", "insight": "str" } ],
       "calendar": [ { "date": "str", "event": "str" } ],
-      "majorInsights": [ { "discipline": "humanities|science|engineering|business", "title": "str", "content": "str", "trend": "str", "url": "str" } ],
+      "majorInsights": [ { "discipline": "humanities|science|engineering|business", "title": "str", "content": "str", "trend": "str", "url": "str", "timestamp": "str" } ],
       "majorInsightsUrl": "str",
       "majorDeepDive": {
         "papers": [ { "id": "str", "title": "str", "source": "str", "url": "str", "timestamp": "str" } ],
         "majorNews": [ { "id": "str", "title": "str", "source": "str", "url": "str", "timestamp": "str" } ],
         "forums": [ { "name": "str", "url": "str", "description": "str" } ]
       },
-      "agentIntros": [ { "name": "str", "category": "str", "features": ["str"], "description": "str", "url": "str" } ]
+      "agentIntros": [ { "name": "str", "category": "str", "features": ["str"], "description": "str", "url": "str" } ],
+      "todayAction": "str (Student only: one concrete action completable today, verb-first, ≤30 Chinese chars)",
+      "dailyPrompt": "str (Student only: a curiosity-triggering question to spark community sharing)"
     }
   `;
 
@@ -168,7 +176,13 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
     const sanitizedData: DashboardData = {
       isBreakingNews: data.isBreakingNews || false,
       producedAt: new Date().toISOString(),
-      todaySignal: data.todaySignal || { title: "AI Shot", description: "Intelligence feed", takeaway: "Stay tuned", url: "#" },
+      todaySignal: {
+        title: data.todaySignal?.title || "AI Shot",
+        description: data.todaySignal?.description || "Intelligence feed",
+        takeaway: data.todaySignal?.takeaway || "Stay tuned",
+        url: data.todaySignal?.url || "#",
+        timestamp: data.todaySignal?.timestamp,
+      },
       metrics: Array.isArray(data.metrics) ? data.metrics.map((m: any) => ({
         label: m.label || 'Metric',
         value: m.value || 'N/A',
@@ -196,11 +210,19 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
         } : { name: 'Expert', handle: '@ai_expert', avatar: '', role: 'AI Insider', followers: '10k' },
         content: s.content || 'No content provided.',
         interpretation: s.interpretation || 'No interpretation provided.',
+        timestamp: s.timestamp || undefined,
         url: s.url || '#'
       })) : [],
       topics: Array.isArray(data.topics) ? data.topics : [],
       calendar: Array.isArray(data.calendar) ? data.calendar : [],
-      majorInsights: Array.isArray(data.majorInsights) ? data.majorInsights : [],
+      majorInsights: Array.isArray(data.majorInsights) ? data.majorInsights.map((mi: any) => ({
+        discipline: mi.discipline || 'humanities',
+        title: mi.title || '',
+        content: mi.content || '',
+        trend: mi.trend || '',
+        url: mi.url || '#',
+        timestamp: mi.timestamp || undefined,
+      })) : [],
       majorInsightsUrl: typeof data.majorInsightsUrl === 'string' ? data.majorInsightsUrl : "https://openai.com/research/",
       majorDeepDive: data.majorDeepDive ? {
         papers: Array.isArray(data.majorDeepDive.papers) ? data.majorDeepDive.papers : [],
@@ -208,10 +230,26 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
         forums: Array.isArray(data.majorDeepDive.forums) ? data.majorDeepDive.forums : [],
       } : undefined,
       agentIntros: Array.isArray(data.agentIntros) ? data.agentIntros : [],
-      deals: Array.isArray(data.deals) ? data.deals : [],
+      deals: Array.isArray(data.deals) ? data.deals.map((d: any) => ({
+        company: d.company || '',
+        stage: d.stage || '',
+        description: d.description || '',
+        investors: Array.isArray(d.investors) ? d.investors : [],
+        amount: d.amount || '',
+        timestamp: d.timestamp || undefined,
+        url: d.url || '#'
+      })) : [],
       sideHustles: Array.isArray(data.sideHustles) ? data.sideHustles : [],
-      peerStory: (data.peerStory && data.peerStory.author) ? data.peerStory : undefined,
-      soloEntrepreneurs: Array.isArray(data.soloEntrepreneurs) ? data.soloEntrepreneurs : [],
+      peerStory: (data.peerStory && data.peerStory.author) ? {
+        ...data.peerStory,
+        timestamp: data.peerStory.timestamp || undefined,
+      } : undefined,
+      soloEntrepreneurs: Array.isArray(data.soloEntrepreneurs) ? data.soloEntrepreneurs.map((se: any) => ({
+        ...se,
+        timestamp: se.timestamp || undefined,
+      })) : [],
+      todayAction: typeof data.todayAction === 'string' && data.todayAction.trim() ? data.todayAction.trim() : undefined,
+      dailyPrompt: typeof data.dailyPrompt === 'string' && data.dailyPrompt.trim() ? data.dailyPrompt.trim() : undefined,
     };
     
     // Store in cache

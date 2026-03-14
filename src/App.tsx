@@ -105,7 +105,12 @@ const translations = {
     income: 'Income',
     funding: 'Funding',
     soloEntrepreneurTitle: 'Independent Creator Cafe',
-    indieMaker: 'Indie Maker'
+    indieMaker: 'Indie Maker',
+    todayActionTitle: "Today's 1 Thing",
+    todayActionBadge: 'DO THIS NOW',
+    dailyPromptTitle: "Today's Question",
+    featuredBadge: 'Top Pick Today',
+    featuredSubmitHint: 'Answer the question above and get featured on the homepage'
   },
   zh: {
     investor: '投资人',
@@ -169,16 +174,24 @@ const translations = {
     income: '收入',
     funding: '融了',
     soloEntrepreneurTitle: '独立创咖 / 青年创业者',
-    indieMaker: '独立开发者'
+    indieMaker: '独立开发者',
+    todayActionTitle: '今天只做这1件事',
+    todayActionBadge: '立刻行动',
+    dailyPromptTitle: '今日征集',
+    featuredBadge: '今日最佳',
+    featuredSubmitHint: '回答上面的问题，优质投稿将上今日首页'
   }
 };
 
-function CampusVoice({ t }: { t: any, language: Language }) {
+function CampusVoice({ t, dailyPrompt }: { t: any; language: Language; dailyPrompt?: string }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
   const lastTimestampRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const featuredMessage = messages.find((m) => m.featured) ?? null;
+  const regularMessages = messages.filter((m) => !m.featured);
 
   const fetchMessages = async (initial = false) => {
     try {
@@ -236,28 +249,65 @@ function CampusVoice({ t }: { t: any, language: Language }) {
     }
   };
 
+  const activePlaceholder = dailyPrompt
+    ? (dailyPrompt.length > 40 ? dailyPrompt.slice(0, 40) + '…' : dailyPrompt)
+    : t.sharePlaceholder;
+
   return (
-    <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden flex flex-col h-[400px]">
-      <div className="p-5 border-b border-black/5 bg-indigo-50/30 flex items-center justify-between">
-        <h3 className="font-bold flex items-center gap-2">
-          <MessageSquare size={18} className="text-indigo-600" />
-          {t.campusVoice}
-        </h3>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#4ECDC4] animate-pulse" />
-          <span className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">{t.live}</span>
+    <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="p-5 border-b border-black/5 bg-indigo-50/40">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold flex items-center gap-2">
+            <MessageSquare size={18} className="text-indigo-600" />
+            {t.campusVoice}
+          </h3>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[#4ECDC4] animate-pulse" />
+            <span className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">{t.live}</span>
+          </div>
         </div>
+        {/* Daily prompt banner */}
+        {dailyPrompt && (
+          <div className="bg-indigo-600 text-white rounded-2xl px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200 mb-1">{t.dailyPromptTitle}</p>
+            <p className="text-sm font-semibold leading-snug">{dailyPrompt}</p>
+            <p className="text-[10px] text-indigo-300 mt-1.5 italic">{t.featuredSubmitHint}</p>
+          </div>
+        )}
       </div>
-      
-      <div 
+
+      {/* Featured message (today's top pick) */}
+      {featuredMessage && (
+        <div className="px-5 pt-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold bg-amber-400 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                {t.featuredBadge}
+              </span>
+              <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">{featuredMessage.user}</span>
+              <span className="text-[10px] text-gray-400 ml-auto">
+                {new Date(featuredMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+            <p className="text-sm text-gray-800 leading-relaxed font-medium">"{featuredMessage.text}"</p>
+          </div>
+        </div>
+      )}
+
+      {/* Message list */}
+      <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth"
+        className="overflow-y-auto p-5 space-y-4 scroll-smooth"
+        style={{ maxHeight: '240px' }}
       >
-        {messages.map((msg) => (
+        {regularMessages.map((msg) => (
           <div key={msg.id} className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">{msg.user}</span>
-              <span className="text-[10px] text-gray-400">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="text-[10px] text-gray-400">
+                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
             <div className="bg-gray-50 p-3 rounded-2xl rounded-tl-none border border-black/5">
               <p className="text-sm text-gray-700 leading-relaxed">{msg.text}</p>
@@ -266,17 +316,18 @@ function CampusVoice({ t }: { t: any, language: Language }) {
         ))}
       </div>
 
+      {/* Input */}
       <div className="p-4 border-t border-black/5 bg-gray-50/30 space-y-3">
         <div className="flex gap-2">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={t.sharePlaceholder}
+            placeholder={activePlaceholder}
             className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
           />
-          <button 
+          <button
             onClick={handleSend}
             disabled={!inputText.trim() || sending}
             className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -417,6 +468,9 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
               <p className="text-xs text-gray-500 font-medium">
                 {story.author.school} · {story.author.status}
               </p>
+              {story.timestamp && (
+                <p className="text-[10px] text-gray-400 font-medium tabular-nums mt-0.5">{story.timestamp}</p>
+              )}
             </div>
           </div>
           <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1 rounded-lg">
@@ -442,6 +496,82 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
         </div>
       </motion.div>
     </section>
+  );
+}
+
+function HeroPeerStory({ t, story }: { t: any; story: any }) {
+  if (!story || !story.author) return null;
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group"
+    >
+      {/* Decorative blobs */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px] -mr-36 -mt-36 rounded-full" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/10 blur-[80px] -ml-24 -mb-24 rounded-full" />
+
+      <div className="relative z-10 space-y-5">
+        {/* Label row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-purple-400">
+            <Globe size={15} fill="currentColor" />
+            <span className="text-xs font-bold uppercase tracking-[0.2em]">{t.peerStoryTitle}</span>
+          </div>
+          <span className="text-[10px] font-bold bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-500/30">
+            {t.weeklyStory}
+          </span>
+        </div>
+
+        {/* Author row */}
+        <div className="flex items-center gap-3">
+          {story.author.avatar ? (
+            <img
+              src={story.author.avatar}
+              alt=""
+              className="w-12 h-12 rounded-2xl bg-white/10 object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-lg">
+              {story.author.name?.charAt(0) ?? '?'}
+            </div>
+          )}
+          <div>
+            <p className="font-bold text-white">{story.author.name}</p>
+            <p className="text-xs text-white/50 font-medium">
+              {story.author.school} · {story.author.status}
+            </p>
+          </div>
+          {story.funding && (
+            <div className="ml-auto bg-teal-500/20 text-teal-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-teal-500/30">
+              {story.funding}
+            </div>
+          )}
+        </div>
+
+        {/* Story title — conversational hook */}
+        <h2 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
+          {story.title}
+        </h2>
+
+        <p className="text-white/60 text-base leading-relaxed max-w-2xl">
+          {story.content}
+        </p>
+
+        {/* Takeaway pill */}
+        <div className="pt-2 flex flex-col md:flex-row gap-4">
+          <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb size={13} className="text-amber-400" />
+              <p className="text-[10px] uppercase font-bold text-amber-400">{t.whatYouCanLearn}</p>
+            </div>
+            <p className="text-sm italic leading-relaxed text-white/80">"{story.takeaway}"</p>
+          </div>
+        </div>
+      </div>
+    </motion.section>
   );
 }
 
@@ -491,6 +621,9 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
               <div className="text-right">
                 <p className="text-xs font-bold text-rose-600">{person.revenue}</p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Revenue</p>
+                {person.timestamp && (
+                  <p className="text-[9px] text-gray-400 tabular-nums mt-0.5">{person.timestamp}</p>
+                )}
               </div>
             </div>
             
@@ -526,6 +659,34 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
         ))}
       </div>
     </section>
+  );
+}
+
+function TodayActionCard({ t, action }: { t: any; action: string }) {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="relative bg-amber-50 border-2 border-amber-300 rounded-3xl p-7 overflow-hidden"
+    >
+      {/* Decorative large "1" */}
+      <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[120px] font-black text-amber-200/60 select-none leading-none pointer-events-none">
+        1
+      </span>
+      <div className="relative z-10 space-y-3">
+        <div className="flex items-center gap-2">
+          <Zap size={15} className="text-amber-600" fill="currentColor" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">{t.todayActionBadge}</span>
+        </div>
+        <h3 className="text-lg font-black text-gray-900 leading-snug max-w-xs">
+          {t.todayActionTitle}
+        </h3>
+        <p className="text-base font-semibold text-gray-800 leading-relaxed max-w-sm">
+          {action}
+        </p>
+      </div>
+    </motion.section>
   );
 }
 
@@ -864,7 +1025,20 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: News & Signals */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Heavy Hitter (Hero) */}
+            {/* Student Hero: PeerStory 上移至首屏 */}
+            {persona === 'student' && !loading && data?.peerStory && (
+              <HeroPeerStory story={data.peerStory} t={t} />
+            )}
+            {/* Student loading skeleton for hero */}
+            {persona === 'student' && loading && (
+              <div className="bg-black rounded-3xl p-8 space-y-4 animate-pulse">
+                <div className="h-4 w-1/4 bg-white/10 rounded" />
+                <div className="h-8 w-3/4 bg-white/10 rounded" />
+                <div className="h-4 w-full bg-white/10 rounded" />
+                <div className="h-4 w-2/3 bg-white/10 rounded" />
+              </div>
+            )}
+            {/* Heavy Hitter (Hero) — always shown for investor; shown for student as secondary signal below PeerStory */}
             <section className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
               <div className="relative z-10 space-y-4">
@@ -888,9 +1062,14 @@ export default function App() {
                     </p>
                     <div className="pt-4 flex flex-col md:flex-row gap-4">
                       <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
-                        <p className="text-[10px] uppercase font-bold text-teal-400 mb-2">
-                          {persona === 'investor' ? t.signal : t.action}
-                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] uppercase font-bold text-teal-400">
+                            {persona === 'investor' ? t.signal : t.action}
+                          </p>
+                          {data?.todaySignal.timestamp && (
+                            <span className="text-[10px] text-white/40 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
+                          )}
+                        </div>
                         <p className="text-sm italic leading-relaxed">
                           "{data?.todaySignal.takeaway}"
                         </p>
@@ -965,9 +1144,14 @@ export default function App() {
                       <p className="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-3">{insight.content}</p>
                       
                       <div className="pt-4 border-t border-black/5">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                          <TrendingUp size={12} />
-                          {t.futureTrend}
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <TrendingUp size={12} />
+                            {t.futureTrend}
+                          </div>
+                          {insight.timestamp && (
+                            <span className="text-[10px] text-gray-400 font-medium tabular-nums">{insight.timestamp}</span>
+                          )}
                         </div>
                         <p className="text-xs font-medium text-gray-700 italic">
                           {insight.trend}
@@ -1161,6 +1345,11 @@ export default function App() {
                 </div>
               </section>
             </div>
+
+            {/* Today's One Action — Student Only */}
+            {persona === 'student' && data?.todayAction && (
+              <TodayActionCard action={data.todayAction} t={t} />
+            )}
           </div>
 
           {/* Right Column: Social, Deals */}
@@ -1214,14 +1403,19 @@ export default function App() {
                               {signal.author.name.charAt(0)}
                             </div>
                           )}
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1">
                               <span className="font-bold text-sm">{signal.author.name}</span>
                               <span className="text-gray-400 text-xs">{signal.author.handle}</span>
                             </div>
-                            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tight">
-                              {signal.author.role} · {signal.author.followers}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tight">
+                                {signal.author.role} · {signal.author.followers}
+                              </p>
+                              {signal.timestamp && (
+                                <span className="text-[10px] text-gray-400 font-medium tabular-nums">· {signal.timestamp}</span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <p className="text-sm text-gray-700 leading-relaxed mb-3">
@@ -1293,7 +1487,7 @@ export default function App() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-sm">{deal.amount}</p>
-                          <p className="text-[10px] text-gray-400">Valuation N/A</p>
+                          <p className="text-[10px] text-gray-400">{deal.timestamp || 'Recent'}</p>
                         </div>
                       </a>
                     ))
@@ -1323,7 +1517,7 @@ export default function App() {
 
             {/* No Pretending - I Use AI Too - Student Only */}
             {persona === 'student' && (
-              <CampusVoice t={t} language={language} />
+              <CampusVoice t={t} language={language} dailyPrompt={data?.dailyPrompt} />
             )}
           </div>
         </div>

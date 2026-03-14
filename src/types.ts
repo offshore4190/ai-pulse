@@ -8,6 +8,7 @@ export interface MajorInsight {
   content: string;
   trend: string;
   url: string;
+  timestamp?: string;
 }
 
 export interface Metric {
@@ -39,6 +40,7 @@ export interface SocialSignal {
   };
   content: string;
   interpretation: string;
+  timestamp?: string;
   url: string;
 }
 
@@ -47,6 +49,7 @@ export interface TodaySignal {
   description: string;
   takeaway: string;
   url: string;
+  timestamp?: string;
 }
 
 export interface Deal {
@@ -55,6 +58,7 @@ export interface Deal {
   description: string;
   investors: string[];
   amount: string;
+  timestamp?: string;
   url: string;
 }
 
@@ -91,6 +95,7 @@ export interface PeerStory {
   content: string;
   funding: string;
   takeaway: string;
+  timestamp?: string;
 }
 
 export interface SoloEntrepreneur {
@@ -103,6 +108,7 @@ export interface SoloEntrepreneur {
   stack: string[];
   insight: string;
   url: string;
+  timestamp?: string;
 }
 
 export interface MajorDeepDive {
@@ -183,6 +189,11 @@ export type TranslationKeys = {
   funding: string;
   soloEntrepreneurTitle: string;
   indieMaker: string;
+  todayActionTitle: string;
+  todayActionBadge: string;
+  dailyPromptTitle: string;
+  featuredBadge: string;
+  featuredSubmitHint: string;
 };
 
 export interface DashboardData {
@@ -201,6 +212,8 @@ export interface DashboardData {
   sideHustles?: SideHustle[]; // Student only
   peerStory?: PeerStory; // Student only
   soloEntrepreneurs?: SoloEntrepreneur[]; // Student only
+  todayAction?: string; // Student only，一句话行动建议
+  dailyPrompt?: string; // Student only，每日社区征集问题
   isDemo?: boolean;
   producedAt?: string; // ISO format
   isBreakingNews?: boolean;
