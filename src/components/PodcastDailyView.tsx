@@ -274,7 +274,7 @@ export default function PodcastDailyView({
               disabled={generating || !data}
               className="w-full mt-4 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {generating ? (zh ? '生成中...' : 'Generating...') : t.generateScript}
+              {generating ? t.generating : t.generateScript}
             </button>
 
             {script && script.chapters.length > 0 && (
@@ -306,11 +306,7 @@ export default function PodcastDailyView({
           {!script ? (
             <div className="bg-white rounded-3xl border border-black/5 p-12 text-center text-gray-500">
               <Headphones size={48} className="mx-auto mb-4 opacity-40" />
-              <p>
-                {zh
-                  ? '选择语气后点击「生成播客稿」，即可将今日日报转为播客式文本'
-                  : 'Select a voice tone and click "Generate Script" to convert today\'s report into podcast-style text.'}
-              </p>
+              <p>{t.podcastEmptyHint}</p>
             </div>
           ) : (
             <>

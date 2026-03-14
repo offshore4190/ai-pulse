@@ -1,4 +1,51 @@
 import { Component, type ReactNode } from 'react';
+import { useLanguageOptional } from '../contexts/LanguageContext';
+
+const ERROR_TRANSLATIONS = {
+  zh: {
+    title: '页面加载出错',
+    desc: '某个组件渲染时发生错误。请刷新页面重试，或查看控制台获取详情。',
+    viewDetails: '查看错误信息',
+    reload: '刷新页面',
+  },
+  en: {
+    title: 'Page Load Error',
+    desc: 'A component failed to render. Please refresh the page or check the console for details.',
+    viewDetails: 'View error details',
+    reload: 'Reload page',
+  },
+};
+
+function DefaultErrorFallback({ errorMessage }: { errorMessage: string }) {
+  const lang = useLanguageOptional();
+  const t = ERROR_TRANSLATIONS[lang];
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-rose-100 p-8 text-center">
+        <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+          ⚠️
+        </div>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">{t.title}</h1>
+        <p className="text-sm text-gray-600 mb-4">{t.desc}</p>
+        <details className="text-left mb-6">
+          <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+            {t.viewDetails}
+          </summary>
+          <pre className="mt-2 p-3 bg-gray-100 rounded-lg text-xs text-rose-700 overflow-auto max-h-32">
+            {errorMessage}
+          </pre>
+        </details>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-rose-600 hover:bg-rose-700 text-white font-medium px-6 py-2 rounded-xl transition-colors"
+        >
+          {t.reload}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   children: ReactNode;
@@ -30,31 +77,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-rose-100 p-8 text-center">
-            <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
-              ⚠️
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">页面加载出错</h1>
-            <p className="text-sm text-gray-600 mb-4">
-              某个组件渲染时发生错误。请刷新页面重试，或查看控制台获取详情。
-            </p>
-            <details className="text-left mb-6">
-              <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
-                查看错误信息
-              </summary>
-              <pre className="mt-2 p-3 bg-gray-100 rounded-lg text-xs text-rose-700 overflow-auto max-h-32">
-                {this.state.error.message}
-              </pre>
-            </details>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-rose-600 hover:bg-rose-700 text-white font-medium px-6 py-2 rounded-xl transition-colors"
-            >
-              刷新页面
-            </button>
-          </div>
-        </div>
+        <DefaultErrorFallback errorMessage={this.state.error.message} />
       );
     }
 

@@ -33,6 +33,7 @@ import {
   Award
 } from 'lucide-react';
 import { Persona, DashboardData, Language, Discipline, AgentIntro, UserStats } from './types';
+import { useLanguage } from './contexts/LanguageContext';
 import { fetchDashboardData, prefetchNextData } from './services/geminiService';
 import { getUserStats, recordReadAction, addPoints } from './services/userStatsService';
 import DynamicBackground from './components/DynamicBackground';
@@ -112,7 +113,7 @@ const translations = {
     indieMaker: 'Indie Maker',
     todayActionTitle: "Today's 1 Thing",
     todayActionBadge: 'DO THIS NOW',
-    todayActionBadgeStudent: '马上就做',
+    todayActionBadgeStudent: 'Do This Now',
     dailyPromptTitle: "Today's Question",
     featuredBadge: 'Top Pick Today',
     featuredSubmitHint: 'Answer the question above and get featured on the homepage',
@@ -120,7 +121,26 @@ const translations = {
     myProfileFloat: 'My AI Literacy',
     aiLiteracyPoints: 'AI Literacy Points',
     continuousReadDays: 'Day Streak',
-    totalReadDays: 'Total Read Days'
+    totalReadDays: 'Total Read Days',
+    bakeTime: 'Fresh at',
+    pointsEarnHint: 'Earn points by daily visits, reading articles, and community participation',
+    streakSuffix: 'days streak',
+    appTagline: 'What AI Is Up To Today',
+    dailyBriefing: 'Daily Briefing',
+    marketSignals: 'Market Signals',
+    about: 'About',
+    contact: 'Contact',
+    privacy: 'Privacy',
+    emailPlaceholder: 'Email',
+    verifiedSources: 'Verified Sources',
+    readFullPaper: 'Read Full Paper',
+    activeCommunity: 'Active Community',
+    podcastDaily: "Today's AI Podcast",
+    voiceTone: 'Voice Tone',
+    generateScript: 'Generate Script',
+    chapterNav: 'Chapter Navigation',
+    generating: 'Generating...',
+    podcastEmptyHint: 'Select a voice tone and click "Generate Script" to convert today\'s report into podcast-style text.'
   },
   zh: {
     investor: '投资人',
@@ -196,7 +216,26 @@ const translations = {
     myProfileFloat: '我的 AI 素养',
     aiLiteracyPoints: 'AI 素养积分',
     continuousReadDays: '连续阅读天数',
-    totalReadDays: '总阅读天数'
+    totalReadDays: '总阅读天数',
+    bakeTime: '出炉时间',
+    pointsEarnHint: '每日访问、阅读文章、参与社区可获得积分',
+    streakSuffix: '天连续阅读',
+    appTagline: '今天AI在干嘛',
+    dailyBriefing: '每日简报',
+    marketSignals: '市场信号',
+    about: '关于我们',
+    contact: '联系我们',
+    privacy: '隐私政策',
+    emailPlaceholder: '邮箱',
+    verifiedSources: '权威来源',
+    readFullPaper: '阅读全文',
+    activeCommunity: '活跃社区',
+    podcastDaily: '今日 AI 播客',
+    voiceTone: '播客气口',
+    generateScript: '生成播客稿',
+    chapterNav: '章节导航',
+    generating: '生成中...',
+    podcastEmptyHint: '选择语气后点击「生成播客稿」，即可将今日日报转为播客式文本'
   }
 };
 
@@ -487,7 +526,7 @@ function PeerStorySection({ t, story }: { t: any, story: any }) {
                 {story.author.school} · {story.author.status}
               </p>
               {story.timestamp && (
-                <p className="text-[10px] text-gray-400 font-medium tabular-nums mt-0.5">{story.timestamp}</p>
+                <p className="text-[9px] text-gray-500 font-medium tabular-nums mt-0.5">{story.timestamp}</p>
               )}
             </div>
           </div>
@@ -640,7 +679,7 @@ function SoloEntrepreneurSection({ t, entrepreneurs }: { t: any, entrepreneurs: 
                 <p className="text-xs font-bold text-rose-600">{person.revenue}</p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Revenue</p>
                 {person.timestamp && (
-                  <p className="text-[9px] text-gray-400 tabular-nums mt-0.5">{person.timestamp}</p>
+                  <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{person.timestamp}</p>
                 )}
               </div>
             </div>
@@ -709,8 +748,8 @@ function TodayActionCard({ t, action }: { t: any; action: string }) {
 }
 
 export default function App() {
+  const { language, setLanguage } = useLanguage();
   const [persona, setPersona] = useState<Persona>('investor');
-  const [language, setLanguage] = useState<Language>('zh');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -733,6 +772,21 @@ export default function App() {
   useEffect(() => {
     if (showProfile) refreshUserStats();
   }, [showProfile]);
+
+  useEffect(() => {
+    const isZh = language === 'zh';
+    document.documentElement.lang = isZh ? 'zh-CN' : 'en';
+    document.title = isZh ? 'Daily Shot. 今天AI在干嘛' : 'Daily Shot. What AI Is Up To Today';
+    const desc = isZh
+      ? '今天AI在干嘛 - 高密度 AI 情报仪表盘，整合学生学习洞察与投资人信号'
+      : 'What AI is up to today - High-density AI intelligence dashboard for students and investors';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', isZh ? 'Daily Shot. 今天AI在干嘛' : 'Daily Shot. What AI Is Up To Today');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', desc);
+  }, [language]);
 
   const loadData = async () => {
     // If we already have data, don't show the full loading skeleton to make it feel faster
@@ -776,60 +830,64 @@ export default function App() {
     <div className={`min-h-screen text-[#1A1A1A] font-sans selection:bg-teal-100 relative`}>
       <DynamicBackground />
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-bottom border-black/5 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5 px-4 py-1.5 md:py-2">
+        <div className="max-w-7xl mx-auto">
+        {/* Mobile: two-row layout */}
+        <div className="md:hidden flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" className="w-8 h-8 object-contain" alt="Daily Shot Logo" />
+              <h1 className="text-sm font-bold tracking-tight">Daily Shot.</h1>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center bg-black/5 p-0.5 rounded-full">
+                <button onClick={() => setPersona('investor')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
+                  <BarChart3 size={12} />
+                  {t.investor}
+                </button>
+                <button onClick={() => setPersona('student')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
+                  <GraduationCap size={12} />
+                  {t.student}
+                </button>
+              </div>
+              <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-1 px-2 py-1 bg-black/5 hover:bg-black/10 rounded-full text-xs font-medium">
+                <Languages size={12} />
+                {language === 'en' ? '中文' : 'EN'}
+              </button>
+              <button className="p-1.5 text-gray-500 hover:bg-black/5 rounded-full"><Search size={18} /></button>
+              <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-7 h-7 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold shrink-0">JD</button>
+            </div>
+          </div>
+          <div className="flex justify-end text-[10px] text-gray-500 font-medium tabular-nums">
+            <span className="uppercase tracking-wider mr-1">{t.bakeTime}</span>
+            {new Date().toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') + ' 06:00'}
+          </div>
+        </div>
+        {/* Desktop: single-row layout */}
+        <div className="hidden md:flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.png" className="w-9 h-9 object-contain" alt="Daily Shot Logo" />
             <div className="flex flex-col leading-tight">
               <h1 className="text-base font-bold tracking-tight">Daily Shot.</h1>
-              <span className="text-[10px] text-gray-400 font-medium tracking-wide">今天AI在干嘛</span>
+              <span className="text-[10px] text-gray-400 font-medium tracking-wide">{t.appTagline}</span>
             </div>
           </div>
-
           <div className="flex items-center gap-4">
             <div className="flex items-center bg-black/5 p-1 rounded-full">
-              <button 
-                onClick={() => setPersona('investor')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
-              >
-                <BarChart3 size={14} />
-                {t.investor}
-              </button>
-              <button 
-                onClick={() => setPersona('student')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}
-              >
-                <GraduationCap size={14} />
-                {t.student}
-              </button>
+              <button onClick={() => setPersona('investor')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><BarChart3 size={14} />{t.investor}</button>
+              <button onClick={() => setPersona('student')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><GraduationCap size={14} />{t.student}</button>
             </div>
-
-            <button 
-              onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
-              className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium transition-colors"
-            >
-              <Languages size={14} />
-              {language === 'en' ? '中文' : 'EN'}
-            </button>
+            <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium"><Languages size={14} />{language === 'en' ? '中文' : 'EN'}</button>
           </div>
-
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex flex-col items-end leading-tight">
-              <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">出炉时间</span>
-              <span className="text-[11px] font-bold text-gray-600 tabular-nums">
-                {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') + ' 06:00'}
-              </span>
+            <div className="flex flex-col items-end leading-tight">
+              <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">{t.bakeTime}</span>
+              <span className="text-[11px] font-bold text-gray-600 tabular-nums">{new Date().toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') + ' 06:00'}</span>
             </div>
-            <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full transition-colors">
-              <Search size={20} />
-            </button>
-            <button
-              onClick={() => { setShowProfile(true); refreshUserStats(); }}
-              className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold hover:ring-2 hover:ring-teal-300 transition-all"
-            >
-              JD
-            </button>
+            <button className="p-2 text-gray-500 hover:bg-black/5 rounded-full"><Search size={20} /></button>
+            <button onClick={() => { setShowProfile(true); refreshUserStats(); }} className="w-8 h-8 rounded-full bg-[#4ECDC4] flex items-center justify-center text-white text-xs font-bold">JD</button>
           </div>
+        </div>
         </div>
       </header>
 
@@ -869,7 +927,7 @@ export default function App() {
                     {(userStats ?? getUserStats()).aiLiteracyPoints}
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
-                    {language === 'zh' ? '每日访问、阅读文章、参与社区可获得积分' : 'Earn points by daily visits, reading articles, and community participation'}
+                    {t.pointsEarnHint}
                   </p>
                 </motion.div>
                 <motion.div
@@ -888,7 +946,7 @@ export default function App() {
                     {(userStats ?? getUserStats()).currentStreakDays}
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
-                    {language === 'zh' ? '天连续阅读' : ' days streak'}
+                    {t.streakSuffix}
                   </p>
                   {(userStats ?? getUserStats()).totalReadDays !== undefined && (userStats ?? getUserStats()).totalReadDays! > 0 && (
                     <p className="text-xs text-gray-400 mt-1">
@@ -932,7 +990,7 @@ export default function App() {
                         {t.papers}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-teal-600/50 uppercase tracking-widest">Verified Sources</span>
+                        <span className="text-[10px] font-bold text-teal-600/50 uppercase tracking-widest">{t.verifiedSources}</span>
                         <div className="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] animate-pulse" />
                       </div>
                     </div>
@@ -955,9 +1013,9 @@ export default function App() {
                               </p>
                               <div className="flex items-center gap-4 text-xs">
                                 <span className="font-bold px-2 py-1 bg-teal-100 text-teal-700 rounded-md">{paper.source}</span>
-                                <span className="text-gray-400 font-medium">{paper.timestamp}</span>
+                                <span className="text-[9px] text-gray-500 font-medium tabular-nums">{paper.timestamp}</span>
                                 <span className="text-teal-600 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  Read Full Paper <ChevronRight size={12} />
+                                  {t.readFullPaper} <ChevronRight size={12} />
                                 </span>
                               </div>
                             </div>
@@ -990,7 +1048,7 @@ export default function App() {
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{news.source}</span>
-                              <span className="text-[10px] text-gray-400 font-medium">{news.timestamp}</span>
+                              <span className="text-[9px] text-gray-500 font-medium tabular-nums">{news.timestamp}</span>
                             </div>
                             <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors leading-snug">
                               {news.title}
@@ -1040,7 +1098,7 @@ export default function App() {
                           </p>
                           <div className="flex items-center gap-2 text-[10px] font-bold text-purple-400 uppercase tracking-widest">
                             <span className="w-1 h-1 rounded-full bg-purple-400" />
-                            Active Community
+                            {t.activeCommunity}
                           </div>
                         </a>
                       ))}
@@ -1165,7 +1223,7 @@ export default function App() {
                             {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}
                           </p>
                           {data?.todaySignal.timestamp && (
-                            <span className="text-[10px] text-white/40 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
+                            <span className="text-[9px] text-white/50 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
                           )}
                         </div>
                         <p className="text-sm italic leading-relaxed">
@@ -1252,7 +1310,7 @@ export default function App() {
                             {t.futureTrend}
                           </div>
                           {insight.timestamp && (
-                            <span className="text-[10px] text-gray-400 font-medium tabular-nums">{insight.timestamp}</span>
+                            <span className="text-[9px] text-gray-500 font-medium tabular-nums">{insight.timestamp}</span>
                           )}
                         </div>
                         <p className="text-xs font-medium text-gray-700 italic">
@@ -1368,7 +1426,7 @@ export default function App() {
                         </div>
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} · {item.timestamp}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{item.source} · <span className="text-[9px] text-gray-500 font-normal not-italic">{item.timestamp}</span></span>
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Bookmark size={14} /></button>
                               <button className="p-1.5 hover:bg-black/5 rounded-lg text-gray-400 hover:text-black"><Share2 size={14} /></button>
@@ -1515,7 +1573,7 @@ export default function App() {
                                 {signal.author.role} · {signal.author.followers}
                               </p>
                               {signal.timestamp && (
-                                <span className="text-[10px] text-gray-400 font-medium tabular-nums">· {signal.timestamp}</span>
+                                <span className="text-[9px] text-gray-500 font-medium tabular-nums">· {signal.timestamp}</span>
                               )}
                             </div>
                           </div>
@@ -1589,7 +1647,7 @@ export default function App() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-sm">{deal.amount}</p>
-                          <p className="text-[10px] text-gray-400">{deal.timestamp || 'Recent'}</p>
+                          <p className="text-[9px] text-gray-500 tabular-nums">{deal.timestamp || 'Recent'}</p>
                         </div>
                       </a>
                     ))
@@ -1607,7 +1665,7 @@ export default function App() {
                         </div>
                         <div>
                           <p className="font-bold text-sm line-clamp-1">{item.title}</p>
-                          <p className="text-xs text-gray-500">{t.resource} · 5 {t.minRead}</p>
+                          <p className="text-xs text-gray-500">{t.resource} · 5 {t.minRead}{item.timestamp && <span className="text-[9px] text-gray-500 ml-1">· {item.timestamp}</span>}</p>
                         </div>
                         <ExternalLink size={14} className="ml-auto text-gray-300" />
                       </a>
@@ -1641,7 +1699,7 @@ export default function App() {
               <img src="/logo.png" className="w-9 h-9 object-contain" alt="Daily Shot Logo" />
               <div className="flex flex-col leading-tight">
                 <h1 className="text-base font-bold tracking-tight">Daily Shot.</h1>
-                <span className="text-[10px] text-gray-500 font-medium tracking-wide">今天AI在干嘛</span>
+                <span className="text-[10px] text-gray-500 font-medium tracking-wide">{t.appTagline}</span>
               </div>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
@@ -1651,23 +1709,23 @@ export default function App() {
           <div>
             <h4 className="font-bold text-sm mb-4">{t.product}</h4>
             <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#" className="hover:text-black">Daily Briefing</a></li>
-              <li><a href="#" className="hover:text-black">Market Signals</a></li>
+              <li><a href="#" className="hover:text-black">{t.dailyBriefing}</a></li>
+              <li><a href="#" className="hover:text-black">{t.marketSignals}</a></li>
               <li><a href="#" className="hover:text-black">{t.learningPath}</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-4">{t.company}</h4>
             <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#" className="hover:text-black">About</a></li>
-              <li><a href="#" className="hover:text-black">Contact</a></li>
-              <li><a href="#" className="hover:text-black">Privacy</a></li>
+              <li><a href="#" className="hover:text-black">{t.about}</a></li>
+              <li><a href="#" className="hover:text-black">{t.contact}</a></li>
+              <li><a href="#" className="hover:text-black">{t.privacy}</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-4">{t.subscribe}</h4>
             <div className="flex gap-2">
-              <input type="email" placeholder="Email" className="bg-black/5 border-0 rounded-xl px-4 py-2 text-sm flex-1 focus:ring-2 focus:ring-teal-500 outline-none" />
+              <input type="email" placeholder={t.emailPlaceholder} className="bg-black/5 border-0 rounded-xl px-4 py-2 text-sm flex-1 focus:ring-2 focus:ring-teal-500 outline-none" />
               <button className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold">{t.join}</button>
             </div>
           </div>

@@ -205,7 +205,31 @@ export type TranslationKeys = {
   dailyPromptTitle: string;
   featuredBadge: string;
   featuredSubmitHint: string;
-};
+  myProfile: string;
+  myProfileFloat: string;
+  aiLiteracyPoints: string;
+  continuousReadDays: string;
+  totalReadDays: string;
+  bakeTime: string;
+  pointsEarnHint: string;
+  streakSuffix: string;
+  appTagline: string;
+  dailyBriefing: string;
+  marketSignals: string;
+  about: string;
+  contact: string;
+  privacy: string;
+  emailPlaceholder: string;
+  verifiedSources: string;
+  readFullPaper: string;
+  activeCommunity: string;
+  podcastDaily: string;
+  voiceTone: string;
+  generateScript: string;
+  chapterNav: string;
+  generating: string;
+  podcastEmptyHint: string;
+}
 
 export interface DashboardData {
   todaySignal: TodaySignal;
