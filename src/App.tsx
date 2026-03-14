@@ -148,6 +148,9 @@ const translations = {
     chapterNav: 'Chapter Navigation',
     generating: 'Generating...',
     podcastEmptyHint: 'Select a voice tone and click "Generate Script" to convert today\'s report into podcast-style text.',
+    podcastPlay: 'Play',
+    podcastPause: 'Pause',
+    podcastNowPlaying: 'Now playing',
     revenue: 'Revenue',
     project: 'Project',
     recent: 'Recent',
@@ -257,6 +260,9 @@ const translations = {
     chapterNav: '章节导航',
     generating: '生成中...',
     podcastEmptyHint: '选择语气后点击「生成播客稿」，即可将今日日报转为播客式文本',
+    podcastPlay: '播放',
+    podcastPause: '暂停',
+    podcastNowPlaying: '正在朗读',
     revenue: '营收',
     project: '项目',
     recent: '最近',
@@ -446,13 +452,11 @@ function useAutoScroll(ref: { current: HTMLDivElement | null }, interval = 3000)
       if (isPaused) return;
       
       const { scrollLeft, scrollWidth, clientWidth } = container;
-      // Check if we are near the end
+      const step = clientWidth + 16; // one card width + gap-4
       if (scrollLeft + clientWidth >= scrollWidth - 50) {
         container.scrollTo({ left: 0, behavior: 'smooth' });
       } else {
-        // Scroll by roughly one card width (assuming ~300px + gap)
-        // Or just scroll by a chunk
-        container.scrollBy({ left: 320, behavior: 'smooth' }); 
+        container.scrollBy({ left: step, behavior: 'smooth' });
       }
     };
 
@@ -528,8 +532,114 @@ function SideHustleSection({ t, sideHustles }: { t: any, sideHustles: any[] }) {
   );
 }
 
+function HeavyHitterSection({
+  t, persona, data, loading, expandNews, setExpandNews, addPoints, refreshUserStats, compact = false
+}: {
+  t: any; persona: 'student' | 'investor'; data: DashboardData | null; loading: boolean;
+  expandNews: boolean; setExpandNews: (v: boolean) => void; addPoints: (n: number) => void; refreshUserStats: () => void; compact?: boolean;
+}) {
+  const newsPreviewLimit = compact ? 2 : 3;
+  return (
+    <section className={`bg-black text-white rounded-3xl relative overflow-hidden group ${compact ? 'p-5' : 'p-8'}`}>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
+      <div className="relative z-10 space-y-4">
+        <div className="flex items-center gap-2 text-teal-400">
+          <Zap size={16} fill="currentColor" />
+          <span className="text-xs font-bold uppercase tracking-[0.2em]">{t.todaySignal}</span>
+        </div>
+        {loading ? (
+          <div className="space-y-3">
+            <div className={`w-3/4 bg-white/10 rounded animate-pulse ${compact ? 'h-6' : 'h-8'}`} />
+            <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+            <div className="h-4 w-2/3 bg-white/10 rounded animate-pulse" />
+          </div>
+        ) : (
+          <>
+            <h2 className={`font-bold tracking-tight leading-tight ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}>
+              {data?.todaySignal.title}
+            </h2>
+            <p className={`text-gray-400 max-w-2xl ${compact ? 'text-sm line-clamp-2' : 'text-lg'}`}>
+              {data?.todaySignal.description}
+            </p>
+            <div className="pt-4 flex flex-col md:flex-row gap-4">
+              <div className={`bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl flex-1 ${compact ? 'p-3' : 'p-4'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] uppercase font-bold text-teal-400">
+                    {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}
+                  </p>
+                  {data?.todaySignal.timestamp && (
+                    <span className="text-[9px] text-white/50 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
+                  )}
+                </div>
+                <p className={`italic leading-relaxed ${compact ? 'text-xs' : 'text-sm'}`}>
+                  "{data?.todaySignal.takeaway}"
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  addPoints(5);
+                  refreshUserStats();
+                  window.open(data?.todaySignal.url, '_blank');
+                }}
+                className={`bg-teal-500 hover:bg-teal-400 text-black font-bold rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center ${compact ? 'px-4 py-3' : 'px-6 py-4'}`}
+              >
+                {t.readAnalysis}
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            {persona === 'student' && (data?.news?.length ?? 0) > 0 && (
+              <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
+                <div className="space-y-2">
+                  {(expandNews ? data!.news! : data!.news!.slice(0, newsPreviewLimit)).map((item, i) => (
+                    <motion.a 
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key={item.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className={`block rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors ${compact ? 'p-2' : 'p-3'}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                          {item.type === 'product' && <Cpu size={14} />}
+                          {item.type === 'funding' && <Briefcase size={14} />}
+                          {item.type === 'research' && <GraduationCap size={14} />}
+                          {item.type === 'tech' && <Zap size={14} />}
+                          {item.type === 'policy' && <Globe size={14} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium text-white/90 line-clamp-1 ${compact ? 'text-xs' : 'text-sm'}`}>{item.title}</p>
+                          <p className="text-xs text-white/50 mt-0.5">{item.source}{item.timestamp && ` · ${item.timestamp}`}</p>
+                          <p className={`text-teal-300/90 mt-1.5 line-clamp-1 ${compact ? 'text-[10px]' : 'text-xs'}`}>{(t.actionStudent ?? t.action)}: {item.takeaway}</p>
+                        </div>
+                        <ChevronRight size={14} className="flex-shrink-0 text-white/40" />
+                      </div>
+                    </motion.a>
+                  ))}
+                </div>
+                {data!.news!.length > newsPreviewLimit && (
+                  <button
+                    onClick={() => setExpandNews(!expandNews)}
+                    className={`w-full rounded-xl border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 font-medium ${compact ? 'py-2 text-xs' : 'py-3 text-sm'}`}
+                  >
+                    {expandNews ? t.collapse : t.exploreMore}
+                    <ChevronRight size={16} className={expandNews ? 'rotate-90' : ''} />
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story: any; entrepreneurs: any[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const scrollHandlers = useAutoScroll(scrollRef, 3500);
 
   const hasStory = story && story.author;
@@ -539,6 +649,18 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
   const cards: ({ type: 'peer'; data: any } | { type: 'solo'; data: any })[] = [];
   if (hasStory) cards.push({ type: 'peer', data: story });
   if (hasEntrepreneurs) entrepreneurs.forEach((e: any) => cards.push({ type: 'solo', data: e }));
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const { scrollLeft, clientWidth } = el;
+      const idx = Math.round(scrollLeft / (clientWidth + 16));
+      setActiveIndex(Math.min(idx, cards.length - 1));
+    };
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [cards.length]);
 
   return (
     <section className="space-y-4">
@@ -566,7 +688,7 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
+            className="w-[calc(100%-8px)] min-w-[calc(100%-8px)] flex-shrink-0 snap-center bg-white p-6 rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition-all space-y-4"
           >
             {card.type === 'peer' ? (
               <>
@@ -580,28 +702,29 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
                     />
                     <div>
                       <h4 className="font-bold text-lg">{card.data.author.name}</h4>
-                      <p className="text-xs text-gray-500 font-medium">
-                        {card.data.author.school} · {card.data.author.status}
-                      </p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        <span className="text-[10px] font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{card.data.author.school}</span>
+                        <span className="text-[10px] font-medium bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">{card.data.author.status}</span>
+                      </div>
                       {card.data.timestamp && (
                         <p className="text-[9px] text-gray-500 font-medium tabular-nums mt-0.5">{card.data.timestamp}</p>
                       )}
                     </div>
                   </div>
                   {card.data.funding && (
-                    <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1 rounded-lg">{card.data.funding}</div>
+                    <div className="bg-teal-50 text-teal-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-teal-200">{card.data.funding}</div>
                   )}
                 </div>
                 <div className="space-y-3">
                   <h5 className="font-bold text-gray-800 leading-tight">{card.data.title}</h5>
-                  <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{card.data.content}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">{card.data.content}</p>
                 </div>
                 <div className="pt-4 border-t border-black/5">
                   <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-2">
                     <Lightbulb size={14} />
                     {t.whatYouCanLearn}
                   </div>
-                  <p className="text-sm font-medium text-gray-700 italic">{card.data.takeaway}</p>
+                  <p className="text-sm font-medium text-gray-700 italic leading-relaxed">{card.data.takeaway}</p>
                 </div>
               </>
             ) : (
@@ -616,15 +739,15 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
                     />
                     <div>
                       <h4 className="font-bold text-sm">{card.data.name}</h4>
-                      <p className="text-[10px] text-gray-500 font-medium">{card.data.role}</p>
+                      <span className="inline-block text-[10px] font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md mt-0.5">{card.data.role}</span>
+                      {card.data.timestamp && (
+                        <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{card.data.timestamp}</p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold text-rose-600">{card.data.revenue}</p>
                     <p className="text-[10px] text-gray-400 uppercase tracking-tighter">{t.revenue}</p>
-                    {card.data.timestamp && (
-                      <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{card.data.timestamp}</p>
-                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -633,7 +756,7 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
                     <span className="text-sm font-bold text-gray-800">{card.data.project}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {card.data.stack.map((tech: string) => (
+                    {card.data.stack?.map((tech: string) => (
                       <span key={tech} className="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-bold uppercase">
                         {tech}
                       </span>
@@ -641,13 +764,13 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
                   </div>
                 </div>
                 <div className="bg-rose-50/50 p-3 rounded-2xl border border-rose-100/50">
-                  <p className="text-xs text-rose-900 leading-relaxed italic">"{card.data.insight}"</p>
+                  <p className="text-xs text-rose-900 leading-relaxed italic line-clamp-3">"{card.data.insight}"</p>
                 </div>
                 <a
                   href={card.data.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2 bg-gray-50 hover:bg-black hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-gray-50 hover:bg-black hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
                 >
                   {t.visitSite} <ExternalLink size={12} />
                 </a>
@@ -656,6 +779,21 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
           </motion.div>
         ))}
       </div>
+      {cards.length > 1 && (
+        <div className="flex justify-center gap-1.5 pt-2">
+          {cards.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                const el = scrollRef.current;
+                if (el) el.scrollTo({ left: idx * (el.clientWidth + 16), behavior: 'smooth' });
+              }}
+              className={`w-2 h-2 rounded-full transition-all ${idx === activeIndex ? 'bg-amber-600 scale-125' : 'bg-gray-300 hover:bg-gray-400'}`}
+              aria-label={`Card ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -1132,106 +1270,17 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: News & Signals */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Heavy Hitter — position 1 for both; student gets expanded with 投研 news + 探索更多 */}
-            <section className="bg-black text-white rounded-3xl p-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[100px] -mr-32 -mt-32 rounded-full" />
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-center gap-2 text-teal-400">
-                  <Zap size={16} fill="currentColor" />
-                  <span className="text-xs font-bold uppercase tracking-[0.2em]">{t.todaySignal}</span>
-                </div>
-                {loading ? (
-                  <div className="space-y-3">
-                    <div className="h-8 w-3/4 bg-white/10 rounded animate-pulse" />
-                    <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
-                    <div className="h-4 w-2/3 bg-white/10 rounded animate-pulse" />
-                  </div>
-                ) : (
-                  <>
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-                      {data?.todaySignal.title}
-                    </h2>
-                    <p className="text-gray-400 text-lg max-w-2xl">
-                      {data?.todaySignal.description}
-                    </p>
-                    <div className="pt-4 flex flex-col md:flex-row gap-4">
-                      <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-[10px] uppercase font-bold text-teal-400">
-                            {persona === 'investor' ? t.signal : (t.actionStudent ?? t.action)}
-                          </p>
-                          {data?.todaySignal.timestamp && (
-                            <span className="text-[9px] text-white/50 font-medium tabular-nums">{data.todaySignal.timestamp}</span>
-                          )}
-                        </div>
-                        <p className="text-sm italic leading-relaxed">
-                          "{data?.todaySignal.takeaway}"
-                        </p>
-                      </div>
-                      <button 
-                        onClick={() => {
-                          addPoints(5);
-                          refreshUserStats();
-                          window.open(data?.todaySignal.url, '_blank');
-                        }}
-                        className="bg-teal-500 hover:bg-teal-400 text-black font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 self-end md:self-center"
-                      >
-                        {t.readAnalysis}
-                        <ChevronRight size={18} />
-                      </button>
-                    </div>
-                    {/* Student-only: 投研黑咖 news preview + 探索更多 */}
-                    {persona === 'student' && (data?.news?.length ?? 0) > 0 && (
-                      <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
-                        <div className="space-y-2">
-                          {(expandNews ? data!.news! : data!.news!.slice(0, 3)).map((item, i) => (
-                            <motion.a 
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              key={item.id}
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.05 }}
-                              className="block p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                                  {item.type === 'product' && <Cpu size={14} />}
-                                  {item.type === 'funding' && <Briefcase size={14} />}
-                                  {item.type === 'research' && <GraduationCap size={14} />}
-                                  {item.type === 'tech' && <Zap size={14} />}
-                                  {item.type === 'policy' && <Globe size={14} />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm text-white/90 line-clamp-1">{item.title}</p>
-                                  <p className="text-xs text-white/50 mt-0.5">{item.source}{item.timestamp && ` · ${item.timestamp}`}</p>
-                                  <p className="text-xs text-teal-300/90 mt-1.5 line-clamp-1">{(t.actionStudent ?? t.action)}: {item.takeaway}</p>
-                                </div>
-                                <ChevronRight size={14} className="flex-shrink-0 text-white/40" />
-                              </div>
-                            </motion.a>
-                          ))}
-                        </div>
-                        {data!.news!.length > 3 && (
-                          <button
-                            onClick={() => setExpandNews(!expandNews)}
-                            className="w-full py-3 rounded-xl border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 text-sm font-medium"
-                          >
-                            {expandNews ? t.collapse : t.exploreMore}
-                            <ChevronRight size={16} className={expandNews ? 'rotate-90' : ''} />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </section>
-
-            {/* Sliding cards: 全球同咖 + 独立创咖 — student only, position 2 */}
+            {/* Student: 全球同咖 + 独立创咖 first; Investor: Heavy Hitter first */}
             {persona === 'student' && !loading && (data?.peerStory || (data?.soloEntrepreneurs?.length ?? 0) > 0) && (
               <PeerStorySoloSlidingCards t={t} story={data?.peerStory} entrepreneurs={data?.soloEntrepreneurs || []} />
+            )}
+            {persona === 'investor' && (
+              <HeavyHitterSection
+                t={t} persona={persona} data={data} loading={loading}
+                expandNews={expandNews} setExpandNews={setExpandNews}
+                addPoints={addPoints} refreshUserStats={refreshUserStats}
+                compact={false}
+              />
             )}
 
             {/* AI + Major Section */}
@@ -1502,6 +1551,15 @@ export default function App() {
 
           {/* Right Column: Social, Deals */}
           <div className="lg:col-span-4 space-y-6">
+            {/* Heavy Hitter — Student only, position 1 (compact) */}
+            {persona === 'student' && (
+              <HeavyHitterSection
+                t={t} persona={persona} data={data} loading={loading}
+                expandNews={expandNews} setExpandNews={setExpandNews}
+                addPoints={addPoints} refreshUserStats={refreshUserStats}
+                compact={true}
+              />
+            )}
             {/* Social Signals - Investor Only */}
             {persona === 'investor' && (
               <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">

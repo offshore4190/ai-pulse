@@ -1,5 +1,27 @@
 export type Persona = 'student' | 'investor';
 export type Language = 'en' | 'zh';
+
+export type PodcastVoiceTone = 'youth' | 'middle' | 'elder' | 'gentle' | 'sunny' | 'professional';
+export interface PodcastChapter {
+  id: string;
+  title: string;
+  content: string;
+  order: number;
+}
+export interface PodcastScript {
+  title: string;
+  intro?: string;
+  chapters: PodcastChapter[];
+  outro?: string;
+  generatedAt: string;
+}
+export interface VoiceToneOption {
+  value: PodcastVoiceTone;
+  label: string;
+  labelEn: string;
+  icon: string;
+  desc: string;
+}
 export type Discipline = 'humanities' | 'science' | 'engineering' | 'business';
 
 export interface MajorInsight {
@@ -231,6 +253,9 @@ export type TranslationKeys = {
   chapterNav: string;
   generating: string;
   podcastEmptyHint: string;
+  podcastPlay: string;
+  podcastPause: string;
+  podcastNowPlaying: string;
   revenue: string;
   project: string;
   recent: string;

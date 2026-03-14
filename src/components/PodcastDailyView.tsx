@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Headphones, ArrowLeft } from 'lucide-react';
+import { Headphones, ArrowLeft, Play, Pause } from 'lucide-react';
 import {
   Persona,
   DashboardData,
@@ -21,6 +21,19 @@ const VOICE_TONE_OPTIONS: VoiceToneOption[] = [
   { value: 'professional', label: '专业', labelEn: 'Professional', icon: '💼', desc: '简洁、信息密度高' },
 ];
 
+const FALLBACK_TRANSITIONS: Record<string, { zh: string; en: string }> = {
+  'today-signal': { zh: '先说说今天的重磅。', en: "First up—today's heavy hitter." },
+  metrics: { zh: '接下来看看数据。', en: "Now let's look at the numbers." },
+  news: { zh: '行业快讯这边，', en: "On the news front, " },
+  'social-signals': { zh: '社交层面，', en: "On social, " },
+  deals: { zh: '说到融资，', en: "On deals, " },
+  'side-hustles': { zh: '副业方面，', en: "For side hustles, " },
+  'peer-story': { zh: '有个同咖故事想跟你分享。', en: "There's a peer story to share." },
+  'today-action': { zh: '今天可以做的，就这一件。', en: "For today, here's the one thing." },
+  'major-insights': { zh: '专业特调这块，', en: "On major insights, " },
+  agents: { zh: '最后看看 Agent 自助吧台。', en: "Finally, the Agent directory." },
+};
+
 function buildFallbackScript(
   data: DashboardData | null,
   _tone: PodcastVoiceTone,
@@ -39,79 +52,84 @@ function buildFallbackScript(
   let order = 0;
 
   const zh = lang === 'zh';
+  const t = (id: string) => (zh ? FALLBACK_TRANSITIONS[id]?.zh ?? '' : FALLBACK_TRANSITIONS[id]?.en ?? '');
 
   chapters.push({
     id: 'today-signal',
     title: zh ? '今日重磅' : 'Heavy Hitter',
-    content: `${data.todaySignal.title}\n\n${data.todaySignal.description}\n\n${zh ? '行动建议：' : 'Action: '}${data.todaySignal.takeaway}`,
+    content: `${t('today-signal')}${data.todaySignal.title}。${data.todaySignal.description}。${zh ? '行动建议：' : 'Action: '}${data.todaySignal.takeaway}`,
     order: order++,
   });
 
   if (data.metrics?.length) {
+    const parts = data.metrics.map((m) => `${m.label} ${zh ? '是' : 'is'} ${m.value}${m.change ? ` (${m.change})` : ''}`);
     chapters.push({
       id: 'metrics',
       title: zh ? '核心指标' : 'Key Metrics',
-      content: data.metrics
-        .map((m) => `${m.label}: ${m.value}${m.change ? ` (${m.change})` : ''}`)
-        .join('\n'),
+      content: `${t('metrics')}${parts.join(zh ? '；' : '; ')}`,
       order: order++,
     });
   }
 
   if (data.news?.length) {
-    const items = data.news.slice(0, 5).map((n) => `• ${n.title}\n  ${n.takeaway}`);
+    const items = data.news.slice(0, 5);
+    const parts = items.map((n, i) =>
+      zh ? `第${i + 1}条，${n.title}。${n.takeaway}` : `Item ${i + 1}: ${n.title}. ${n.takeaway}`
+    );
     chapters.push({
       id: 'news',
       title: zh ? '行业快讯' : 'News',
-      content: items.join('\n\n'),
+      content: `${t('news')}${parts.join(zh ? '；' : ' ')}`,
       order: order++,
     });
   }
 
   if (persona === 'investor') {
     if (data.socialSignals?.length) {
+      const parts = data.socialSignals.slice(0, 3).map((s) =>
+        zh ? `@${s.author.name} 提到：${s.content.slice(0, 150)}…` : `@${s.author.name}: ${s.content.slice(0, 150)}…`
+      );
       chapters.push({
         id: 'social-signals',
         title: zh ? '社交信号' : 'Social Signals',
-        content: data.socialSignals
-          .slice(0, 3)
-          .map((s) => `@${s.author.name}: ${s.content.slice(0, 150)}...`)
-          .join('\n\n'),
+        content: `${t('social-signals')}${parts.join(zh ? '；' : ' ')}`,
         order: order++,
       });
     }
     if (data.deals?.length) {
+      const parts = data.deals.slice(0, 4).map((d) =>
+        zh ? `${d.company} ${d.amount}，${d.description}` : `${d.company} (${d.amount}): ${d.description}`
+      );
       chapters.push({
         id: 'deals',
         title: zh ? '融资动态' : 'Key Deals',
-        content: data.deals
-          .slice(0, 4)
-          .map((d) => `• ${d.company} (${d.amount}): ${d.description}`)
-          .join('\n'),
+        content: `${t('deals')}${parts.join(zh ? '；' : ' ')}`,
         order: order++,
       });
     }
   }
 
   if (data.majorInsights?.length) {
+    const parts = data.majorInsights.map((i) =>
+      zh ? `【${i.discipline}】${i.title}。${i.content}` : `[${i.discipline}] ${i.title}. ${i.content}`
+    );
     chapters.push({
       id: 'major-insights',
       title: zh ? '专业特调' : 'Major Insights',
-      content: data.majorInsights
-        .map((i) => `【${i.discipline}】${i.title}\n${i.content}`)
-        .join('\n\n'),
+      content: `${t('major-insights')}${parts.join(zh ? '；' : ' ')}`,
       order: order++,
     });
   }
 
   if (persona === 'student') {
     if (data.sideHustles?.length) {
+      const parts = data.sideHustles.map((h) =>
+        zh ? `${h.title}，大概${h.income}，${h.description}` : `${h.title} (${h.income}): ${h.description}`
+      );
       chapters.push({
         id: 'side-hustles',
         title: zh ? '本周副业冰萃' : 'Side Hustles',
-        content: data.sideHustles
-          .map((h) => `• ${h.title} (${h.income})\n  ${h.description}`)
-          .join('\n\n'),
+        content: `${t('side-hustles')}${parts.join(zh ? '；' : ' ')}`,
         order: order++,
       });
     }
@@ -119,7 +137,7 @@ function buildFallbackScript(
       chapters.push({
         id: 'peer-story',
         title: zh ? '同咖故事' : 'Peer Story',
-        content: `${data.peerStory.title}\n\n${data.peerStory.content}\n\n${zh ? '你可以学到：' : 'Takeaway: '}${data.peerStory.takeaway}`,
+        content: `${t('peer-story')}${data.peerStory.title}。${data.peerStory.content}。${zh ? '你可以学到：' : 'Takeaway: '}${data.peerStory.takeaway}`,
         order: order++,
       });
     }
@@ -127,27 +145,27 @@ function buildFallbackScript(
       chapters.push({
         id: 'today-action',
         title: zh ? '今天只做这1件事' : "Today's One Action",
-        content: data.todayAction,
+        content: `${t('today-action')}${data.todayAction}`,
         order: order++,
       });
     }
   }
 
   if (data.agentIntros?.length) {
+    const parts = data.agentIntros.slice(0, 5).map((a) =>
+      zh ? `${a.name}（${a.category}）：${a.description}` : `${a.name} (${a.category}): ${a.description}`
+    );
     chapters.push({
       id: 'agents',
       title: zh ? 'Agent 自助吧台' : 'Agent Directory',
-      content: data.agentIntros
-        .slice(0, 5)
-        .map((a) => `• ${a.name} (${a.category}): ${a.description}`)
-        .join('\n'),
+      content: `${t('agents')}${parts.join(zh ? '；' : ' ')}`,
       order: order++,
     });
   }
 
   return {
     title: zh ? '今日AI日报' : "Today's AI Pulse",
-    intro: zh ? '大家好，欢迎收听今天的 AI 日报。' : 'Welcome to today\'s AI pulse.',
+    intro: zh ? '大家好，欢迎收听今天的 AI 日报。' : "Welcome to today's AI pulse.",
     chapters,
     outro: zh ? '以上就是今天的全部内容，感谢收听。' : "That's all for today. Thanks for listening.",
     generatedAt: new Date().toISOString(),
@@ -172,8 +190,99 @@ export default function PodcastDailyView({
   const [generating, setGenerating] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playingSegmentId, setPlayingSegmentId] = useState<string | null>(null);
+  const segmentQueueRef = useRef<{ id: string; text: string }[]>([]);
+  const queueIndexRef = useRef(0);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (script && typeof window !== 'undefined' && window.speechSynthesis?.speaking) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      setPlayingSegmentId(null);
+    }
+  }, [script]);
+
+  const handlePlayPause = () => {
+    if (!script || typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const synth = window.speechSynthesis;
+
+    if (synth.speaking) {
+      if (synth.paused) {
+        synth.resume();
+        setIsPlaying(true);
+      } else {
+        synth.pause();
+        setIsPlaying(false);
+      }
+      return;
+    }
+
+    if (isPlaying || playingSegmentId) {
+      synth.cancel();
+      setPlayingSegmentId(null);
+      setIsPlaying(false);
+    }
+
+    const segments: { id: string; text: string }[] = [];
+    if (script.intro?.trim()) segments.push({ id: 'intro', text: script.intro });
+    script.chapters.forEach((ch) => {
+      if (ch.content?.trim()) segments.push({ id: ch.id, text: ch.content });
+    });
+    if (script.outro?.trim()) segments.push({ id: 'outro', text: script.outro });
+
+    if (segments.length === 0) return;
+
+    segmentQueueRef.current = segments;
+    queueIndexRef.current = 0;
+    const lang = language === 'zh' ? 'zh-CN' : 'en-US';
+
+    const speakNext = () => {
+      const idx = queueIndexRef.current;
+      const segs = segmentQueueRef.current;
+      if (idx >= segs.length || !mountedRef.current) {
+        if (mountedRef.current) {
+          setIsPlaying(false);
+          setPlayingSegmentId(null);
+        }
+        return;
+      }
+
+      const seg = segs[idx];
+      setPlayingSegmentId(seg.id);
+      setIsPlaying(true);
+      document.getElementById(seg.id === 'intro' ? 'segment-intro' : seg.id === 'outro' ? 'segment-outro' : `chapter-${seg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      const u = new SpeechSynthesisUtterance(seg.text);
+      u.lang = lang;
+      u.onend = () => {
+        queueIndexRef.current += 1;
+        speakNext();
+      };
+      u.onerror = () => {
+        queueIndexRef.current += 1;
+        speakNext();
+      };
+      synth.speak(u);
+    };
+
+    speakNext();
+  };
+
+  useEffect(() => {
+    if (!script?.chapters.length || !contentRef.current) return;
     if (!script?.chapters.length || !contentRef.current) return;
 
     const observer = new IntersectionObserver(
@@ -277,21 +386,42 @@ export default function PodcastDailyView({
               {generating ? t.generating : t.generateScript}
             </button>
 
+            {script && (script.intro || script.chapters.length > 0 || script.outro) && (
+              <div className="mt-4 pt-4 border-t border-black/5 flex items-center gap-3">
+                <button
+                  onClick={handlePlayPause}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-semibold transition-colors"
+                  title={isPlaying ? t.podcastPause : t.podcastPlay}
+                >
+                  {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                  {isPlaying ? t.podcastPause : t.podcastPlay}
+                </button>
+                {playingSegmentId && (
+                  <span className="text-xs text-gray-500 truncate max-w-[140px]">
+                    {t.podcastNowPlaying} {playingSegmentId === 'intro' ? (zh ? '开场' : 'Intro') : playingSegmentId === 'outro' ? (zh ? '收尾' : 'Outro') : script.chapters.find((c) => c.id === playingSegmentId)?.title ?? playingSegmentId}
+                  </span>
+                )}
+              </div>
+            )}
+
             {script && script.chapters.length > 0 && (
               <div className="mt-6 pt-6 border-t border-black/5">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">{t.chapterNav}</h3>
                 <nav className="space-y-1 max-h-64 overflow-y-auto">
-                  {script.chapters.map((ch) => (
-                    <button
-                      key={ch.id}
-                      onClick={() => scrollToChapter(ch.id)}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                        activeChapterId === ch.id ? 'bg-violet-100 text-violet-800 font-bold' : 'text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      {ch.title}
-                    </button>
-                  ))}
+                  {script.chapters.map((ch) => {
+                    const isActive = (playingSegmentId ? playingSegmentId === ch.id : activeChapterId === ch.id);
+                    return (
+                      <button
+                        key={ch.id}
+                        onClick={() => scrollToChapter(ch.id)}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
+                          isActive ? 'bg-violet-100 text-violet-800 font-bold' : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {ch.title}
+                      </button>
+                    );
+                  })}
                 </nav>
               </div>
             )}
@@ -311,22 +441,42 @@ export default function PodcastDailyView({
           ) : (
             <>
               {script.intro && (
-                <section className="bg-violet-50/50 rounded-3xl border border-violet-100 p-6">
+                <section
+                  id="segment-intro"
+                  className={`scroll-mt-24 rounded-3xl border p-6 transition-colors ${
+                    playingSegmentId === 'intro' ? 'bg-emerald-50/80 border-emerald-200 ring-2 ring-emerald-200' : 'bg-violet-50/50 border-violet-100'
+                  }`}
+                >
                   <p className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">{script.intro}</p>
                 </section>
               )}
               {script.chapters.map((ch) => (
-                <section key={ch.id} id={`chapter-${ch.id}`} className="scroll-mt-24">
+                <section
+                  key={ch.id}
+                  id={`chapter-${ch.id}`}
+                  className={`scroll-mt-24 transition-colors ${
+                    playingSegmentId === ch.id ? 'rounded-3xl ring-2 ring-emerald-200' : ''
+                  }`}
+                >
                   <h3 className="text-xl font-bold border-l-4 border-violet-500 pl-4 py-2 bg-violet-50/40 rounded-r-lg mb-4">
                     {ch.title}
                   </h3>
-                  <div className="bg-white rounded-3xl border border-black/5 p-6">
+                  <div
+                    className={`rounded-3xl border p-6 transition-colors ${
+                      playingSegmentId === ch.id ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white border-black/5'
+                    }`}
+                  >
                     <p className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">{ch.content}</p>
                   </div>
                 </section>
               ))}
               {script.outro && (
-                <section className="bg-gray-50 rounded-3xl border border-black/5 p-6">
+                <section
+                  id="segment-outro"
+                  className={`scroll-mt-24 rounded-3xl border p-6 transition-colors ${
+                    playingSegmentId === 'outro' ? 'bg-emerald-50/80 border-emerald-200 ring-2 ring-emerald-200' : 'bg-gray-50 border-black/5'
+                  }`}
+                >
                   <p className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">{script.outro}</p>
                 </section>
               )}

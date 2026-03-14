@@ -17,12 +17,12 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 PODCAST_MODEL = "gemini-2.0-flash"
 
 VOICE_TONE_DESCRIPTIONS = {
-    "youth": "口语化、活力、像朋友聊天",
-    "middle": "稳重、有见解、节奏适中",
-    "elder": "娓娓道来、有阅历感",
-    "gentle": "舒缓、亲切、温和",
-    "sunny": "积极、明快",
-    "professional": "简洁、信息密度高",
+    "youth": "口语化、活力、像朋友聊天。使用短句、口语化表达，可适当使用语气词（比如、其实、对吧）。避免长从句和书面语。",
+    "middle": "稳重、有见解、节奏适中。句式适中，用词准确，带一点分析感。",
+    "elder": "娓娓道来、有阅历感。语速略慢，用词稳重，像在讲故事。",
+    "gentle": "舒缓、亲切、温和。语气柔和，句式舒缓。",
+    "sunny": "积极、明快。语气轻松，节奏明快。",
+    "professional": "简洁、信息密度高。用词精准，少废话，偏资讯播报风格。",
 }
 
 
@@ -71,8 +71,14 @@ Rules:
 - Each chapter id should be unique and kebab-case (e.g. today-signal, metrics, news).
 - Chapter order must follow: todaySignal -> metrics -> news -> [persona-specific] -> majorInsights -> agentIntros.
 - Content in each chapter should be narrative, podcast-ready prose (not bullet lists unless appropriate).
+- **Chapter transitions**: Every chapter MUST begin with a brief transition phrase that connects to the previous section (e.g. "接下来聊聊..." / "说到融资动态..." / "Now let's look at..." / "On the deal front..."). The first chapter may start without one if intro leads naturally.
+- **Oral style**: Use short sentences, conversational phrasing. Avoid long subordinate clauses and written-language patterns.
+- **Pacing**: intro = 1-2 short welcoming sentences; outro = 1-2 natural sign-off sentences.
 - Include generatedAt as current ISO timestamp.
 - Respond with ONLY the JSON object, no other text.
+
+Example tone (Chinese): "大家好，欢迎收听。先说说今天的重磅——某某公司发布了新模型。接下来看看数据，核心指标这边…"
+Example tone (English): "Welcome back. First up: today's big move—Company X unveiled a new model. Now for the numbers…"
 """
 
 
