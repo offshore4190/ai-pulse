@@ -603,7 +603,7 @@ function buildHtml(data, issueNo, dateStr, dateCN, appUrl) {
           <h1 class="text-lg font-semibold tracking-tight">第一杯</h1>
         </div>
         <p class="text-sm text-gray-500 leading-relaxed">
-          为下一代建设者和支持者提供的高保真情报。
+          AgentCoffee·与全球同龄人一起，和AI共创。
         </p>
         <p class="text-xs text-gray-400 italic leading-relaxed">
           本页数据仅供参考，不构成投资建议。

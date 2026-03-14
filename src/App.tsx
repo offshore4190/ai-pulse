@@ -40,6 +40,10 @@ import { getUserStats, recordReadAction, addPoints } from './services/userStatsS
 import DynamicBackground from './components/DynamicBackground';
 import PodcastDailyView from './components/PodcastDailyView';
 
+const VERCEL_STUDENT_DOMAIN = 'ai-pulse-hgy1.vercel.app';
+const isVercelStudentMode = () =>
+  typeof window !== 'undefined' && window.location.hostname === VERCEL_STUDENT_DOMAIN;
+
 const FALLBACK_AGENTS_EN: AgentIntro[] = [
   { name: "ChatGPT", category: "Assistant", features: ["Multi-turn dialogue", "Code generation", "Analysis"], description: "OpenAI's flagship conversational AI for research, writing, and analysis.", url: "https://chat.openai.com/" },
   { name: "Perplexity", category: "Search", features: ["Real-time search", "Source citations"], description: "AI-powered search engine that provides direct answers with sources.", url: "https://www.perplexity.ai/" },
@@ -70,7 +74,7 @@ const translations = {
     signal: 'Signal',
     action: 'Action',
     actionStudent: 'Do This Today',
-    footerDesc: 'High-fidelity intelligence for the next generation of builders and backers.',
+    footerDesc: 'AgentCoffee · Create with AI alongside peers worldwide.',
     product: 'Product',
     company: 'Company',
     subscribe: 'Subscribe',
@@ -182,7 +186,7 @@ const translations = {
     signal: '投资信号',
     action: '行动建议',
     actionStudent: '今天就做',
-    footerDesc: '为下一代建设者和支持者提供的高保真情报站',
+    footerDesc: 'AgentCoffee·与全球同龄人一起，和AI共创',
     product: '产品',
     company: '公司',
     subscribe: '订阅',
@@ -828,7 +832,7 @@ function TodayActionCard({ t, action }: { t: any; action: string }) {
 
 export default function App() {
   const { language, setLanguage } = useLanguage();
-  const [persona, setPersona] = useState<Persona>('investor');
+  const [persona, setPersona] = useState<Persona>(() => isVercelStudentMode() ? 'student' : 'investor');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -923,16 +927,18 @@ export default function App() {
               <h1 className="text-sm font-bold tracking-tight">Daily Shot.</h1>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="flex items-center bg-black/5 p-0.5 rounded-full">
-                <button onClick={() => setPersona('investor')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
-                  <BarChart3 size={12} />
-                  {t.investor}
-                </button>
-                <button onClick={() => setPersona('student')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
-                  <GraduationCap size={12} />
-                  {t.student}
-                </button>
-              </div>
+              {!isVercelStudentMode() && (
+                <div className="flex items-center bg-black/5 p-0.5 rounded-full">
+                  <button onClick={() => setPersona('investor')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
+                    <BarChart3 size={12} />
+                    {t.investor}
+                  </button>
+                  <button onClick={() => setPersona('student')} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}>
+                    <GraduationCap size={12} />
+                    {t.student}
+                  </button>
+                </div>
+              )}
               <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-1 px-2 py-1 bg-black/5 hover:bg-black/10 rounded-full text-xs font-medium">
                 <Languages size={12} />
                 {language === 'en' ? t.switchToChinese : t.switchToEnglish}
@@ -956,10 +962,12 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center bg-black/5 p-1 rounded-full">
-              <button onClick={() => setPersona('investor')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><BarChart3 size={14} />{t.investor}</button>
-              <button onClick={() => setPersona('student')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><GraduationCap size={14} />{t.student}</button>
-            </div>
+            {!isVercelStudentMode() && (
+              <div className="flex items-center bg-black/5 p-1 rounded-full">
+                <button onClick={() => setPersona('investor')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'investor' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><BarChart3 size={14} />{t.investor}</button>
+                <button onClick={() => setPersona('student')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${persona === 'student' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-black'}`}><GraduationCap size={14} />{t.student}</button>
+              </div>
+            )}
             <button onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')} className="flex items-center gap-2 px-3 py-1.5 bg-black/5 hover:bg-black/10 rounded-full text-sm font-medium"><Languages size={14} />{language === 'en' ? t.switchToChinese : t.switchToEnglish}</button>
           </div>
           <div className="flex items-center gap-4">
