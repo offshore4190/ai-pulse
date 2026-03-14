@@ -1,6 +1,35 @@
 import { GoogleGenAI } from "@google/genai";
 import { DashboardData, Persona, Language } from "../types";
 
+// ── Backend pipeline URL ──────────────────────────────────────────────────
+// When the Python FastAPI backend is running, it exposes a pre-built snapshot
+// that was assembled via the four-stage pipeline (RSS → preprocess → AI score → aggregate).
+// This is faster and cheaper than a direct Gemini call on every page load.
+// Set VITE_PIPELINE_API_URL in .env to point to the backend (e.g. http://localhost:8000).
+// Leave it empty to disable the backend fast-path and always call Gemini directly.
+const PIPELINE_API_URL = (import.meta as any).env?.VITE_PIPELINE_API_URL ?? '';
+
+async function tryFetchFromBackend(
+  persona: Persona,
+  language: Language,
+): Promise<DashboardData | null> {
+  if (!PIPELINE_API_URL) return null;
+
+  try {
+    const url = `${PIPELINE_API_URL}/api/pipeline/snapshot?persona=${persona}&language=${language}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return null;
+    const data: DashboardData = await res.json();
+    // Minimal sanity check — must at least have todaySignal
+    if (!data?.todaySignal?.title) return null;
+    console.log(`[Pipeline] Loaded snapshot from backend for ${persona}-${language}`);
+    return data;
+  } catch {
+    // Backend unreachable or timed out — fall through to Gemini
+    return null;
+  }
+}
+
 // 延迟初始化：避免模块加载时 new GoogleGenAI() 抛出导致整页空白
 // Vite 的 define 会在构建时替换 process.env.GEMINI_API_KEY
 let _ai: InstanceType<typeof GoogleGenAI> | null = null;
@@ -61,16 +90,27 @@ export async function fetchDashboardData(persona: Persona, language: Language, f
   const pCache = getPersistentCache();
   if (!forceRefresh && pCache[cacheKey]) {
     const { data: cachedData, timestamp: cachedTime } = pCache[cacheKey];
-    
-    // If it's the same day and NOT breaking news, return cached data
     if (isSameDay(now, cachedTime) && !cachedData.isBreakingNews) {
       console.log(`[Cache] Returning today's report for ${cacheKey}`);
-      // Also update in-memory cache
       cache[cacheKey] = pCache[cacheKey];
       return cachedData;
     }
   }
 
+  // 3. Try the Python pipeline backend first (pre-built snapshot, no Gemini cost)
+  if (!forceRefresh) {
+    const backendData = await tryFetchFromBackend(persona, language);
+    if (backendData) {
+      backendData.producedAt = backendData.producedAt ?? new Date().toISOString();
+      cache[cacheKey] = { data: backendData, timestamp: now };
+      const updatedPCache = getPersistentCache();
+      updatedPCache[cacheKey] = { data: backendData, timestamp: now };
+      setPersistentCache(updatedPCache);
+      return backendData;
+    }
+  }
+
+  // 4. Fallback: direct Gemini API call (original behaviour)
   const languageInstruction = language === 'zh' 
     ? "Use Simplified Chinese." 
     : "Use English.";
