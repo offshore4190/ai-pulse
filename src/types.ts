@@ -168,7 +168,6 @@ export type TranslationKeys = {
   viewAll: string;
   socialSignals: string;
   keyDeals: string;
-  learningPath: string;
   topicRadar: string;
   upcoming: string;
   interpretation: string;

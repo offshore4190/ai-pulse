@@ -67,7 +67,6 @@ const translations = {
     viewAll: 'View All',
     socialSignals: 'Social Signals',
     keyDeals: 'Key Deals',
-    learningPath: 'Growth Recipe',
     topicRadar: 'Hot Topic Latte Art',
     upcoming: 'Upcoming',
     interpretation: 'Interpretation',
@@ -161,9 +160,6 @@ const translations = {
     sourceFirstPublished: 'First published',
     switchToEnglish: 'EN',
     switchToChinese: 'Chinese',
-    twitter: 'Twitter',
-    linkedIn: 'LinkedIn',
-    discord: 'Discord',
     fetchError: 'Failed to fetch data. Please retry.',
     apiKeyUnavailable: 'API key selection is not available in this environment.',
     profileButton: 'JD',
@@ -179,7 +175,6 @@ const translations = {
     viewAll: '查看全部',
     socialSignals: '社交信号',
     keyDeals: '核心交易',
-    learningPath: '成长配方',
     topicRadar: '热点拉花',
     upcoming: '即将到来',
     interpretation: '深度解读',
@@ -272,9 +267,6 @@ const translations = {
     recent: '最近',
     switchToEnglish: '英语',
     switchToChinese: '中文',
-    twitter: '推特',
-    linkedIn: '领英',
-    discord: 'Discord',
     fetchError: '数据加载失败，请重试',
     apiKeyUnavailable: '当前环境无法切换 API 密钥',
     profileButton: '今日',
@@ -1879,24 +1871,20 @@ export default function App() {
               <SideHustleSection t={t} sideHustles={data.sideHustles || []} />
             )}
 
-            {/* Deals or Learning Resources */}
-            <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
-              <div className="p-5 border-b border-black/5 bg-gray-50/50">
-                <h3 className="font-bold flex items-center gap-2">
-                  {persona === 'investor' ? (
+            {/* Deals — Investor only (成长配方已合并至重磅热咖，学生端不再单独展示) */}
+            {persona === 'investor' && (
+              <section className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-black/5 bg-gray-50/50">
+                  <h3 className="font-bold flex items-center gap-2">
                     <><Briefcase size={18} className="text-teal-500" /> {t.keyDeals}</>
+                  </h3>
+                </div>
+                <div className="p-5 space-y-4">
+                  {loading ? (
+                    Array(3).fill(0).map((_, i) => (
+                      <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
+                    ))
                   ) : (
-                    <><GraduationCap size={18} className="text-indigo-500" /> {t.learningPath}</>
-                  )}
-                </h3>
-              </div>
-              <div className="p-5 space-y-4">
-                {loading ? (
-                  Array(3).fill(0).map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
-                  ))
-                ) : (
-                  persona === 'investor' ? (
                     (data?.deals || []).map((deal) => (
                       <a 
                         key={deal.company} 
@@ -1918,29 +1906,10 @@ export default function App() {
                         </div>
                       </a>
                     ))
-                  ) : (
-                    (data?.news || []).slice(0, 3).map((item) => (
-                      <a 
-                        key={item.id} 
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-black/5 block"
-                      >
-                        <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
-                          <GraduationCap size={20} />
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm line-clamp-1">{item.title}</p>
-                          <p className="text-xs text-gray-500">{t.resource} · 5 {t.minRead}{item.timestamp && <span className="text-[9px] text-gray-500 ml-1">· {item.timestamp}</span>}</p>
-                        </div>
-                        <ExternalLink size={14} className="ml-auto text-gray-300" />
-                      </a>
-                    ))
-                  )
-                )}
-              </div>
-            </section>
+                  )}
+                </div>
+              </section>
+            )}
 
             {/* No Pretending - I Use AI Too - Student Only */}
             {persona === 'student' && (
@@ -1978,7 +1947,6 @@ export default function App() {
             <ul className="space-y-2 text-sm text-gray-500">
               <li><a href="#" className="hover:text-black">{t.dailyBriefing}</a></li>
               <li><a href="#" className="hover:text-black">{t.marketSignals}</a></li>
-              <li><a href="#" className="hover:text-black">{t.learningPath}</a></li>
             </ul>
           </div>
           <div>
@@ -1999,11 +1967,6 @@ export default function App() {
         </div>
         <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
           <p>© 2026 Daily Shot. {t.rights}</p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-black">{t.twitter}</a>
-            <a href="#" className="hover:text-black">{t.linkedIn}</a>
-            <a href="#" className="hover:text-black">{t.discord}</a>
-          </div>
         </div>
       </footer>
 
