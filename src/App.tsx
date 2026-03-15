@@ -616,7 +616,14 @@ function HeavyHitterSection({
                         <div className="flex-1 min-w-0">
                           <p className={`font-medium text-white/90 line-clamp-1 ${compact ? 'text-xs' : 'text-sm'}`}>{item.title}</p>
                           <p className="text-xs text-white/50 mt-0.5">{item.source}{item.timestamp && ` · ${item.timestamp}`}</p>
-                          <p className={`text-teal-300/90 mt-1.5 line-clamp-1 ${compact ? 'text-[10px]' : 'text-xs'}`}>{(t.actionStudent ?? t.action)}: {item.takeaway}</p>
+                          <p className={`text-teal-300/90 mt-1.5 line-clamp-1 ${compact ? 'text-[10px]' : 'text-xs'}`}>
+                            {(() => {
+                              const label = t.actionStudent ?? t.action;
+                              const tw = item.takeaway ?? '';
+                              const hasLabel = tw.startsWith(label + '：') || tw.startsWith(label + ':') || tw.startsWith(label);
+                              return hasLabel ? tw : `${label}: ${tw}`;
+                            })()}
+                          </p>
                         </div>
                         <ChevronRight size={14} className="flex-shrink-0 text-white/40" />
                       </div>
