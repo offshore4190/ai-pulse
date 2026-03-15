@@ -917,7 +917,7 @@ export default function App() {
     <div className={`min-h-screen text-[#1A1A1A] font-sans selection:bg-teal-100 relative`}>
       <DynamicBackground />
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5 px-4 py-1.5 md:py-2">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5 px-4 pb-1.5 md:pb-2" style={{ paddingTop: 'max(6px, env(safe-area-inset-top))' }}>
         <div className="max-w-7xl mx-auto">
         {/* Mobile: two-row layout */}
         <div className="md:hidden flex flex-col gap-1">
@@ -982,7 +982,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6 pb-24 md:pb-6">
         <AnimatePresence mode="wait">
           {showProfile ? (
             <motion.div
@@ -1246,20 +1246,48 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Metrics Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {/* Metrics Bar - Mobile: horizontal scroll; Desktop: grid */}
+        <div className="md:hidden -mx-4 px-4 flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory no-scrollbar">
           {loading ? (
-            Array(5).fill(0).map((_, i) => (
-              <div key={i} className={`h-20 bg-white rounded-2xl animate-pulse border border-black/5 ${i >= 4 ? 'hidden md:block' : ''}`} />
+            Array(4).fill(0).map((_, i) => (
+              <div key={i} className="snap-start shrink-0 w-36 h-20 bg-white rounded-2xl animate-pulse border border-black/5" />
             ))
           ) : (
             (data?.metrics || []).map((metric, i) => (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                key={metric.label} 
-                className={`bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow ${i >= 4 ? 'hidden md:block' : ''}`}
+                key={metric.label}
+                className="snap-start shrink-0 w-36 bg-white p-4 rounded-2xl border border-black/5 shadow-sm"
+              >
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">{metric.label}</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-bold font-mono">{metric.value}</span>
+                  {metric.change && (
+                    <span className={`text-[11px] font-medium flex items-center ${metric.isPositive ? 'text-teal-600' : 'text-rose-600'}`}>
+                      {metric.isPositive ? <TrendingUp size={10} className="mr-0.5" /> : <TrendingDown size={10} className="mr-0.5" />}
+                      {metric.change}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            ))
+          )}
+        </div>
+        <div className="hidden md:grid grid-cols-5 gap-4">
+          {loading ? (
+            Array(5).fill(0).map((_, i) => (
+              <div key={i} className="h-20 bg-white rounded-2xl animate-pulse border border-black/5" />
+            ))
+          ) : (
+            (data?.metrics || []).map((metric, i) => (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                key={metric.label}
+                className="bg-white p-4 rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">{metric.label}</p>
                 <div className="flex items-baseline gap-2">
@@ -1277,9 +1305,9 @@ export default function App() {
         </div>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Left Column: News & Signals */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-4 md:space-y-6">
             {/* Student: 全球同咖 + 独立创咖 first; Investor: Heavy Hitter first */}
             {persona === 'student' && !loading && (data?.peerStory || (data?.soloEntrepreneurs?.length ?? 0) > 0) && (
               <PeerStorySoloSlidingCards t={t} story={data?.peerStory} entrepreneurs={data?.soloEntrepreneurs || []} />
@@ -1734,7 +1762,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Social, Deals */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-4 md:space-y-6">
             {/* Heavy Hitter — Student only, position 1 (compact) */}
             {persona === 'student' && (
               <HeavyHitterSection
@@ -1918,7 +1946,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-12 border-t border-black/5 mt-12">
+      <footer className="max-w-7xl mx-auto px-4 pt-12 pb-24 md:pb-12 border-t border-black/5 mt-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -1966,12 +1994,12 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Right-side vertical floating bar - only on dashboard view */}
+      {/* Right-side vertical floating bar - desktop only */}
       {!showDeepDive && !showProfile && !showPodcast && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 p-2 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl shadow-lg"
+          className="hidden md:flex fixed right-4 top-1/2 -translate-y-1/2 z-40 flex-col gap-2 p-2 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl shadow-lg"
         >
           <button
             onClick={() => setShowPodcast(true)}
@@ -1992,6 +2020,34 @@ export default function App() {
           </button>
         </motion.div>
       )}
+
+      {/* Mobile bottom tab navigation */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 shadow-[0_-4px_24px_rgba(0,0,0,0.07)] flex items-stretch"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        <button
+          onClick={() => { setShowProfile(false); setShowPodcast(false); setShowDeepDive(false); }}
+          className={`flex-1 flex flex-col items-center justify-center py-3 gap-0.5 transition-colors active:bg-black/5 ${!showProfile && !showPodcast && !showDeepDive ? 'text-teal-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Zap size={20} strokeWidth={!showProfile && !showPodcast && !showDeepDive ? 2.5 : 1.75} />
+          <span className="text-[10px] font-semibold tracking-wide">{t.dailyBriefing}</span>
+        </button>
+        <button
+          onClick={() => { setShowPodcast(true); setShowProfile(false); setShowDeepDive(false); }}
+          className={`flex-1 flex flex-col items-center justify-center py-3 gap-0.5 transition-colors active:bg-black/5 ${showPodcast ? 'text-violet-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Headphones size={20} strokeWidth={showPodcast ? 2.5 : 1.75} />
+          <span className="text-[10px] font-semibold tracking-wide">{t.podcastDaily}</span>
+        </button>
+        <button
+          onClick={() => { setShowProfile(true); setShowPodcast(false); setShowDeepDive(false); refreshUserStats(); }}
+          className={`flex-1 flex flex-col items-center justify-center py-3 gap-0.5 transition-colors active:bg-black/5 ${showProfile ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Award size={20} strokeWidth={showProfile ? 2.5 : 1.75} />
+          <span className="text-[10px] font-semibold tracking-wide">{t.myProfileFloat}</span>
+        </button>
+      </nav>
     </div>
   );
 }
