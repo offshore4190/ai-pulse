@@ -670,11 +670,17 @@ function PeerStorySoloSlidingCards({ t, story, entrepreneurs }: { t: any; story:
     <section className="space-y-4">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-xl font-bold flex items-center gap-2 border-l-4 border-amber-700 pl-3 bg-amber-50/40 rounded-r-lg py-1 pr-3">
-          <Globe size={20} className="text-amber-700" />
-          {t.peerStoryTitle}
-          <span className="text-gray-400 font-normal text-sm">/</span>
-          <Rocket size={18} className="text-amber-600" />
-          {t.soloEntrepreneurTitle}
+          <span className="flex md:hidden items-center gap-2 whitespace-nowrap">
+            <Globe size={20} className="text-amber-700 shrink-0" />
+            {t.peerStoryTitle}
+          </span>
+          <span className="hidden md:flex items-center gap-2">
+            <Globe size={20} className="text-amber-700" />
+            {t.peerStoryTitle}
+            <span className="text-gray-400 font-normal text-sm">/</span>
+            <Rocket size={18} className="text-amber-600" />
+            {t.soloEntrepreneurTitle}
+          </span>
         </h3>
         <span className="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full uppercase tracking-wider">
           {t.weeklyStory}
