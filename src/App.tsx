@@ -837,7 +837,7 @@ function TodayActionCard({ t, action }: { t: any; action: string }) {
 
 export default function App() {
   const { language, setLanguage } = useLanguage();
-  const [persona, setPersona] = useState<Persona>(() => isVercelStudentMode() ? 'student' : 'investor');
+  const [persona, setPersona] = useState<Persona>('student');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

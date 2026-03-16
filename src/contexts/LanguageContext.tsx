@@ -8,11 +8,8 @@ function getInitialLanguage(): Language {
     const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (stored === 'zh' || stored === 'en') return stored;
   } catch {}
-  // Vercel 大学生页面优先中文
-  if (typeof window !== 'undefined' && window.location.hostname === 'ai-pulse-hgy1.vercel.app') {
-    return 'zh';
-  }
-  return navigator.language.startsWith('zh') ? 'zh' : 'en';
+  // 默认使用中文（适合国内课堂）
+  return 'zh';
 }
 
 interface LanguageContextValue {
