@@ -69,3 +69,8 @@ temp/
 secrets/
 credentials/
 clawfeed/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
